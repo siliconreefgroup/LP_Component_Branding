@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+    <ClientSideComponentInstance
+        Title="SiliconReefBranding"
+        Location="ClientSideExtension.ApplicationCustomizer"
+        ComponentId="1b3eef7e-c9b2-409b-bb47-3d2299e7057a"
+        Properties="{&quot;testMessage&quot;:&quot;Test message&quot;}">
+    </ClientSideComponentInstance>
+</Elements>

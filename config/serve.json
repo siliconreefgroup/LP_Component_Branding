@@ -1,0 +1,34 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/core-build/serve.schema.json",
+  "port": 4321,
+  "https": true,
+  "initialPage": "https://localhost:5432/workbench",
+  "api": {
+    "port": 5432,
+    "entryPath": "node_modules/@microsoft/sp-webpart-workbench/lib/api/"
+  },
+  "serveConfigurations": {
+    "default": {
+      "pageUrl": "https://ourdigitalworkplace.sharepoint.com/sites/036-REEFLandingPages/SitePages/Branding-Test-Page.aspx",
+      "customActions": {
+        "1b3eef7e-c9b2-409b-bb47-3d2299e7057a": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "testMessage": "Test message"
+          }
+        }
+      }
+    },
+    "siliconReefBranding": {
+      "pageUrl": "https://ourdigitalworkplace.sharepoint.com/sites/036-REEFLandingPages/SitePages/Branding-Test-Page.aspx",
+      "customActions": {
+        "1b3eef7e-c9b2-409b-bb47-3d2299e7057a": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "testMessage": "Test message"
+          }
+        }
+      }
+    }
+  }
+}

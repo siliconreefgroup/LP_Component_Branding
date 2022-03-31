@@ -1,0 +1,28 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "silicon-reef-branding-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/siliconReefBranding/SiliconReefBrandingWebPart.js",
+          "manifest": "./src/webparts/siliconReefBranding/SiliconReefBrandingWebPart.manifest.json"
+        }
+      ]
+    },
+    "silicon-reef-branding-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/siliconReefBranding/SiliconReefBrandingApplicationCustomizer.js",
+          "manifest": "./src/extensions/siliconReefBranding/SiliconReefBrandingApplicationCustomizer.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "SiliconReefBrandingWebPartStrings": "lib/webparts/siliconReefBranding/loc/{locale}.js",
+    "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js",
+    "SiliconReefBrandingApplicationCustomizerStrings": "lib/extensions/siliconReefBranding/loc/{locale}.js"
+  }
+}
