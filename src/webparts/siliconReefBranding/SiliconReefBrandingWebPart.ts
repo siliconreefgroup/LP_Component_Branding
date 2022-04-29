@@ -39,7 +39,7 @@ import { Lists, ILists } from "@pnp/sp/lists";
 import { PropertyFieldCodeEditor, PropertyFieldCodeEditorLanguages } from '@pnp/spfx-property-controls/lib/PropertyFieldCodeEditor';
 import { PropertyFieldColorPicker, PropertyFieldColorPickerStyle } from '@pnp/spfx-property-controls/lib/PropertyFieldColorPicker';
 import * as strings from 'SiliconReefBrandingWebPartStrings';
-
+import {AppInsights} from "applicationinsights-js";
 import * as jQuery from "jquery";
 window["jQuery"] = window["$"] = $;
 import { PropertyFieldSearch } from '@pnp/spfx-property-controls/lib/PropertyFieldSearch';
@@ -82,7 +82,23 @@ export default class SiliconReefBrandingWebPart extends BaseClientSideWebPart<IS
       spfxContext: this.context,
     });
     if(this.displayMode==2){
+      let appInsightsKey: String;
+      appInsightsKey  = "39f70f1c-aeed-4ece-8972-029b37259ace";
+      AppInsights.downloadAndSetup({ instrumentationKey: appInsightsKey });
+      AppInsights.trackPageView('Content Spotlight Webpart', <any>{
+        Site:this.context.pageContext.site.absoluteUrl,
+        Title: this.context.pageContext.legacyPageContext.Title,
+        ItemId: this.context.pageContext.listItem.id,
+        TenantID: this.context.pageContext.legacyPageContext.TenantID,
 
+
+          });
+      AppInsights.trackEvent('Branding webpart used on a page', <any>{
+        Site:this.context.pageContext.site.absoluteUrl,
+        Title: this.context.pageContext.legacyPageContext.Title,
+        ItemId: this.context.pageContext.listItem.id,
+        TenantID: this.context.pageContext.legacyPageContext.TenantID,
+          });
 $("#siliconreefbradning").remove()
 $("#siliconreefbranding").remove()
 
