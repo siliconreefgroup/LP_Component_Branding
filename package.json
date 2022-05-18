@@ -12,6 +12,7 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "@khanacademy/tota11y": "^0.2.0",
     "@microsoft/decorators": "1.11.0",
     "@microsoft/sp-application-base": "1.11.0",
     "@microsoft/sp-core-library": "1.11.0",

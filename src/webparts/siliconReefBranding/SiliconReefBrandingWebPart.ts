@@ -82,27 +82,34 @@ export default class SiliconReefBrandingWebPart extends BaseClientSideWebPart<IS
       spfxContext: this.context,
     });
     if(this.displayMode==2){
-      let appInsightsKey: String;
-      appInsightsKey  = "39f70f1c-aeed-4ece-8972-029b37259ace";
-      AppInsights.downloadAndSetup({ instrumentationKey: appInsightsKey });
-      AppInsights.trackPageView('Content Spotlight Webpart', <any>{
-        Site:this.context.pageContext.site.absoluteUrl,
-        Title: this.context.pageContext.legacyPageContext.Title,
-        ItemId: this.context.pageContext.listItem.id,
-        TenantID: this.context.pageContext.legacyPageContext.TenantID,
 
-
-          });
-      AppInsights.trackEvent('Branding webpart used on a page', <any>{
-        Site:this.context.pageContext.site.absoluteUrl,
-        Title: this.context.pageContext.legacyPageContext.Title,
-        ItemId: this.context.pageContext.listItem.id,
-        TenantID: this.context.pageContext.legacyPageContext.TenantID,
-          });
 $("#siliconreefbradning").remove()
 $("#siliconreefbranding").remove()
 
     }
+    let appInsightsKey: String;
+    appInsightsKey  = "39f70f1c-aeed-4ece-8972-029b37259ace";
+    AppInsights.downloadAndSetup({ instrumentationKey: appInsightsKey });
+    AppInsights.trackPageView('Branding Webpart', <any>{
+      Site:this.context.pageContext.site.absoluteUrl,
+			PageTitle: document.title,
+			SiteTitle: this.context.pageContext.web.title,
+			ItemId:  this.context.pageContext.legacyPageContext.pageItemId,
+			TenantID: this.context.pageContext.aadInfo.tenantId._guid,
+			GuestUser:this.context.pageContext.user.isExternalGuestUser,
+
+
+        });
+    AppInsights.trackEvent('Branding webpart used on a page', <any>{
+      Site:this.context.pageContext.site.absoluteUrl,
+			PageTitle: document.title,
+			SiteTitle: this.context.pageContext.web.title,
+			ItemId:  this.context.pageContext.legacyPageContext.pageItemId,
+			TenantID: this.context.pageContext.aadInfo.tenantId._guid,
+			GuestUser:this.context.pageContext.user.isExternalGuestUser,
+      MainFont: this.properties.font,
+      HeaderFont: this.properties.font2
+        });
 var siteurl: any = this.context.pageContext.site.serverRelativeUrl;
    async function createfile(serverRelativeUrl: string) {
       try {
@@ -833,7 +840,7 @@ h4.title {
   /*MODERN SP STYLING*/
 
 div[data-automation-id*="CanvasControl"], .root-78 {
-background:white !Important;}
+background-color:white !Important;}
 
 
 div[data-sp-feature-tag*="QuickLinksWebPart web part (Quick links)"] {
@@ -848,7 +855,7 @@ span[data-automationid*="SiteHeaderTitle"]{display:none !Important}
 .logoImg-50{height:50px}
 
 div[data-automation-id*="CanvasControl"], .root-78 {
-background:white !Important;}
+background-color:white !Important;}
 
 div[data-sp-feature-instance-id*="713a4f7f-a9b2-4353-813f-c8b944733225"] {
     padding:20px
@@ -1030,7 +1037,7 @@ footer > div {
 
 
 div[data-automation-id*="CanvasControl"], .root-78 {
-  background: transparent !Important;
+  background-color: transparent !Important;
 }
 .cke_editable h2, .cke_editable h3, .cke_editable h4 {
   font-weight: 600 !important;
