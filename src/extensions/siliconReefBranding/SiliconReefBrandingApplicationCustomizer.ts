@@ -1,15 +1,9 @@
 import { override } from '@microsoft/decorators';
 import { Log } from '@microsoft/sp-core-library';
 import {
-  BaseApplicationCustomizer
+  BaseApplicationCustomizer, PlaceholderContent, PlaceholderName, PlaceholderProvider
 } from '@microsoft/sp-application-base';
-
 import * as $ from 'jquery';
-
-
-
-
-
 import pnp, { List, ListEnsureResult } from "sp-pnp-js";
 import { sp } from "@pnp/sp";
 import "@pnp/sp/webs";
@@ -25,7 +19,6 @@ import { Lists, ILists } from "@pnp/sp/lists";
 import * as jQuery from "jquery";
 window["jQuery"] = window["$"] = $;
 import {AppInsights} from "applicationinsights-js";
-
 import * as strings from 'SiliconReefBrandingApplicationCustomizerStrings';
 
 const LOG_SOURCE: string = 'SiliconReefBrandingApplicationCustomizer';
@@ -37,15 +30,33 @@ const LOG_SOURCE: string = 'SiliconReefBrandingApplicationCustomizer';
  */
 export interface ISiliconReefBrandingApplicationCustomizerProperties {
   // This is an example; replace with your own property
-  testMessage: string;
+
 }
 
 /** A Custom Action which can be run during execution of a Client Side Application */
 export default class SiliconReefBrandingApplicationCustomizer
   extends BaseApplicationCustomizer<ISiliconReefBrandingApplicationCustomizerProperties> {
 
-  @override
+    @override
   public onInit(): Promise<void> {
+    console.log("onInit: Entered");
+
+    console.log("Available placeholders: ",
+      this.context.placeholderProvider.placeholderNames.join(", "));
+
+    // top placeholder..
+    let topPlaceholder: PlaceholderContent = this.context.placeholderProvider.tryCreateContent(PlaceholderName.Top);
+    if (topPlaceholder) {
+      topPlaceholder.domElement.innerHTML = ` <div id="topplaceholder">
+
+      </div>`;
+    }
+
+    // bottom placeholder..
+    let bottomPlaceholder: PlaceholderContent = this.context.placeholderProvider.tryCreateContent(PlaceholderName.Bottom);
+    if (bottomPlaceholder) {
+      bottomPlaceholder.domElement.innerHTML = ``;
+    }
     sp.setup({
       spfxContext: this.context,
     });
@@ -66,11 +77,10 @@ var siteurl: any = this.context.pageContext.site.serverRelativeUrl;
     async function getcssfile() {
 
       let currentconetent = (await sp.web.getFileByServerRelativeUrl(`${siteurl}/SiteAssets/mycss.txt`).getText()).toString();
- $("#spTopPlaceholder").append("<style id='siliconreefbranding'>"+currentconetent+"</style>")
+ $("#topplaceholder").append("<style id='siliconreefbranding'>"+currentconetent+"</style>")
     }
 
 getcssfile()
-
-    return Promise.resolve();
+    return Promise.resolve<void>();
   }
 }

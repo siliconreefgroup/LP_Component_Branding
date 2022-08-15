@@ -407,7 +407,7 @@ else {headerfont=this.properties.font2;headerimport =`@import url('https://fonts
  h2, .webpart-header{
     font-family:`+headerfont+` !Important;line-height:1.8em !important;`+uppercase+`
   }
-
+  [data-log-name="DisplayName"]{font-size:18px !important}
    .ms-DocumentCard{background:white !important}
    /*PRIMARY COLOUR*/
 
