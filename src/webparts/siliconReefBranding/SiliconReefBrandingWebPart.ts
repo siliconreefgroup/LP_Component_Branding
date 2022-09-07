@@ -87,19 +87,8 @@ $("#siliconreefbradning").remove()
 $("#siliconreefbranding").remove()
 
     }
-    let appInsightsKey: String;
-    appInsightsKey  = "39f70f1c-aeed-4ece-8972-029b37259ace";
-    AppInsights.downloadAndSetup({ instrumentationKey: appInsightsKey });
-    AppInsights.trackPageView('Branding Webpart', <any>{
-      Site:this.context.pageContext.site.absoluteUrl,
-			PageTitle: document.title,
-			SiteTitle: this.context.pageContext.web.title,
-			ItemId:  this.context.pageContext.legacyPageContext.pageItemId,
-			TenantID: this.context.pageContext.aadInfo.tenantId._guid,
-			GuestUser:this.context.pageContext.user.isExternalGuestUser,
 
 
-        });
     AppInsights.trackEvent('Branding webpart used on a page', <any>{
       Site:this.context.pageContext.site.absoluteUrl,
 			PageTitle: document.title,

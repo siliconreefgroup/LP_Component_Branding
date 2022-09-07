@@ -14,8 +14,6 @@ import "@pnp/sp/webs";
 import "@pnp/sp/hubsites/web";
 import { Webs, IWebs } from "@pnp/sp/webs";
 import { Lists, ILists } from "@pnp/sp/lists";
-
-
 import * as jQuery from "jquery";
 window["jQuery"] = window["$"] = $;
 import {AppInsights} from "applicationinsights-js";
@@ -47,7 +45,7 @@ export default class SiliconReefBrandingApplicationCustomizer
     // top placeholder..
     let topPlaceholder: PlaceholderContent = this.context.placeholderProvider.tryCreateContent(PlaceholderName.Top);
     if (topPlaceholder) {
-      topPlaceholder.domElement.innerHTML = ` <div id="topplaceholder">
+      topPlaceholder.domElement.innerHTML = `<div id="topplaceholder">
 
       </div>`;
     }
@@ -61,9 +59,9 @@ export default class SiliconReefBrandingApplicationCustomizer
       spfxContext: this.context,
     });
     let appInsightsKey: String;
-    appInsightsKey  = "39f70f1c-aeed-4ece-8972-029b37259ace";
+    appInsightsKey  = "bfb830c1-c429-4ca2-9a80-cd175ca8780f";
     AppInsights.downloadAndSetup({ instrumentationKey: appInsightsKey });
-    AppInsights.trackPageView('Silicon Reef Branded Page', <any>{
+    AppInsights.trackEvent('Silicon Reef Branded Page', <any>{
       Site:this.context.pageContext.site.absoluteUrl,
 			PageTitle: document.title,
 			SiteTitle: this.context.pageContext.web.title,
