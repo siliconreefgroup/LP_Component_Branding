@@ -7,7 +7,7 @@ import {
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { escape } from '@microsoft/sp-lodash-subset';
-import * as $ from 'jquery';
+
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { CalloutTriggers } from '@pnp/spfx-property-controls/lib/PropertyFieldHeader';
 import { PropertyFieldToggleWithCallout } from '@pnp/spfx-property-controls/lib/PropertyFieldToggleWithCallout';
@@ -27,7 +27,7 @@ import {
   PropertyPaneSlider,PropertyPaneButton
 } from '@microsoft/sp-property-pane';
 import pnp, { List, ListEnsureResult } from "sp-pnp-js";
-import { sp } from "@pnp/sp";
+import { spfi, SPFI, SPFx, ISPFXContext } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/files";
 import "@pnp/sp/folders";
@@ -40,10 +40,9 @@ import { PropertyFieldCodeEditor, PropertyFieldCodeEditorLanguages } from '@pnp/
 import { PropertyFieldColorPicker, PropertyFieldColorPickerStyle } from '@pnp/spfx-property-controls/lib/PropertyFieldColorPicker';
 import * as strings from 'SiliconReefBrandingWebPartStrings';
 import {AppInsights} from "applicationinsights-js";
+
 import * as jQuery from "jquery";
-window["jQuery"] = window["$"] = $;
-import { PropertyFieldSearch } from '@pnp/spfx-property-controls/lib/PropertyFieldSearch';
-import { drop } from 'lodash';
+
 
 export interface ISiliconReefBrandingWebPartProps {
   description: string;
@@ -76,15 +75,14 @@ export interface ISiliconReefBrandingWebPartProps {
 export default class SiliconReefBrandingWebPart extends BaseClientSideWebPart<ISiliconReefBrandingWebPartProps> {
 
 
-
   public render(): void {
-    sp.setup({
-      spfxContext: this.context,
-    });
+
+
+    const sp = spfi().using(SPFx(this.context));
     if(this.displayMode==2){
 
-$("#siliconreefbradning").remove()
-$("#siliconreefbranding").remove()
+      jQuery("#siliconreefbranding").remove()
+      jQuery("#siliconreefbranding").remove()
 
     }
 
@@ -104,17 +102,15 @@ var siteurl: any = this.context.pageContext.site.serverRelativeUrl;
       try {
 
         const fileExists = await sp.web
-          .getFileByServerRelativeUrl(`${siteurl}/SiteAssets/myfonts.txt`)
-          .select('Exists').get()
-          .then((d) => d.Exists)
-          .catch(() => false);
+          .getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`)
+          .select('Exists');
 
   //Basically, the above line will tell you whether the file is present on the
   //Images folder or not
 console.log(fileExists)
         if (!fileExists) {
-          await sp.web.getFolderByServerRelativeUrl(`${siteurl}/SiteAssets/`)
-  .files.add(`myfonts.txt`, "Open Sans,Poppins", true);
+          await sp.web.getFolderByServerRelativePath(`${siteurl}/SiteAssets/`)
+  .files.addUsingPath(`myfonts.txt`, "Open Sans,Poppins", { Overwrite: true });
         }
 
 
@@ -127,17 +123,15 @@ console.log(fileExists)
       try {
 
         const fileExists = await sp.web
-          .getFileByServerRelativeUrl(`${siteurl}/SiteAssets/mycss.txt`)
-          .select('Exists').get()
-          .then((d) => d.Exists)
-          .catch(() => false);
+          .getFileByUrl(`${siteurl}/SiteAssets/mycss.txt`)
+          .select('Exists')
 
   //Basically, the above line will tell you whether the file is present on the
   //Images folder or not
 console.log(fileExists)
         if (!fileExists) {
-          await sp.web.getFolderByServerRelativeUrl(`${siteurl}/SiteAssets/`)
-  .files.add(`mycss.txt`, "", true);
+          await sp.web.getFolderByServerRelativePath(`${siteurl}/SiteAssets/`)
+  .files.addUsingPath(`mycss.txt`, "",{ Overwrite: true });
         }
 
 
@@ -148,28 +142,28 @@ console.log(fileExists)
     }
     async function updatefile() {
       var serverRelativeUrl: string = siteurl
-      let currentconetent = (await sp.web.getFileByServerRelativeUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString()
+      let currentconetent = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString()
       console.log(currentconetent)
-      await  sp.web.getFileByServerRelativeUrl(`${siteurl}/SiteAssets/myfonts.txt`)
-      .setContent(currentconetent+","+$("#gf").val()+"");
-      var string = (await sp.web.getFileByServerRelativeUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString();
+      await  sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`)
+      .setContent(currentconetent+","+jQuery("#gf").val()+"");
+      var string = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString();
 var array = string.split(",");
-$("#fonts").html("")
+jQuery("#fonts").html("")
 array.forEach(element => {
-  $("#fonts").append("<li>"+element.replace("'","").replace("'","")+"</li>")
+  jQuery("#fonts").append("<li>"+element.replace("'","").replace("'","")+"</li>")
 });
     }
-    async function updateuploadedfile(serverRelativeUrl, filename) {
+    async function updateuploadedfile(serverRelativeUrl: any, filename: string) {
       var serverRelativeUrl = siteurl
-      let currentconetent = (await sp.web.getFileByServerRelativeUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString()
+      let currentconetent = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString()
 
-      await  sp.web.getFileByServerRelativeUrl(`${siteurl}/SiteAssets/myfonts.txt`)
+      await  sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`)
       .setContent(currentconetent+","+filename);
-      var string = (await sp.web.getFileByServerRelativeUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString();
+      var string = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString();
 var array = string.split(",");
-$("#fonts").html("")
+jQuery("#fonts").html("")
 array.forEach(element => {
-  $("#fonts").append("<li>"+element.replace("'","").replace("'","")+"</li>")
+  jQuery("#fonts").append("<li>"+element.replace("'","").replace("'","")+"</li>")
 });
     }
 
@@ -203,9 +197,9 @@ array.forEach(element => {
     <div style="padding:15px" id="branding">
     <form>
 
-    <label><input onchange="$('.searchitem').show();$('.googlefont').show();$('.fontbutton').show();$('.js-upload').hide();" class="uk-radio" type="radio" name="radio2" > Import a Google font</label>
+    <label><input onchange="jQuery('.searchitem').show();jQuery('.googlefont').show();jQuery('.fontbutton').show();jQuery('.js-upload').hide();" class="uk-radio" type="radio" name="radio2" > Import a Google font</label>
 
-    <label><input onchange="$('.searchitem').hide();$('.googlefont').hide();$('.fontbutton').hide();$('.js-upload').show();" class="uk-radio" type="radio" name="radio2"> Upload a font file</label>
+    <label><input onchange="jQuery('.searchitem').hide();jQuery('.googlefont').hide();jQuery('.fontbutton').hide();jQuery('.js-upload').show();" class="uk-radio" type="radio" name="radio2"> Upload a font file</label>
 
 
 
@@ -251,22 +245,22 @@ array.forEach(element => {
 </form>
 </li>
 
-    <div id="ripplebrandingzone"></div>`
+    <div id="beaconbrandingzone"></div>`
 
 
 
-    var inputElement = $("#uploadfontclick");
-    $(inputElement).on('click', function () {
+    var inputElement = jQuery("#uploadfontclick");
+    jQuery(inputElement).on('click', function () {
       uploadFileFromControl()
     })
     function uploadFileFromControl(){
 
       //Get the file from File DOM
-    var files = $("#uploadfont").prop('files');
+    var files = jQuery("#uploadfont").prop('files');
     var file = files[0];
        //Upload a file to the SharePoint Library
-       sp.web.getFolderByServerRelativeUrl("SiteAssets")
-       .files.add(file.name, file, true)
+       sp.web.getFolderByServerRelativePath("SiteAssets")
+       .files.addUsingPath(file.name, file, { Overwrite: true })
        .then((data) =>{
         updateuploadedfile("",file.name)
        })
@@ -274,10 +268,10 @@ array.forEach(element => {
          alert("Error is uploading");
        });
     }
-    $( "#fontsearch" ).keyup(function() {
+    jQuery( "#fontsearch" ).keyup(function() {
 
-      $("#gf").find('option').remove().end();
-      $.get(`https://www.googleapis.com/webfonts/v1/webfonts?sort=alpha&key=AIzaSyAVRRaVmMFgBktw9mL7hwornyqJbf8acUQ`)
+      jQuery("#gf").find('option').remove().end();
+      jQuery.get(`https://www.googleapis.com/webfonts/v1/webfonts?sort=alpha&key=AIzaSyAVRRaVmMFgBktw9mL7hwornyqJbf8acUQ`)
       .then(data  => {
 
         var fonts = data.items;
@@ -287,8 +281,8 @@ array.forEach(element => {
 
 
        for(var k in fonts){
-        if(fonts[k].family.includes($("#fontsearch").val())){
-       $("#gf").append("<option>"+fonts[k].family+"</option>")
+        if(fonts[k].family.includes(jQuery("#fontsearch").val())){
+          jQuery("#gf").append("<option>"+fonts[k].family+"</option>")
 
        }
 
@@ -342,7 +336,7 @@ else {headerfont=this.properties.font2;headerimport =`@import url('https://fonts
 
      SPComponentLoader.loadCss(this.properties.description);
      var styles =
-    `<style id="ripplebranding">
+    `<style data-load-themed-styles="true" id="beaconbranding">
     `+bodyimport+`
     `+headerimport+`
     .uk-subnav-pill>.uk-active>a {
@@ -1182,8 +1176,8 @@ div[data-automation-id*="BaseCollection-FreshData"]  > div{background:transparen
     </style> `;
 
     var script = "<script>"+this.properties.CustomJS+"</script>"
-    $('#ripplebrandingzone').append(styles);
-    $('#ripplebrandingzone').append(script);
+    $('#beaconbrandingzone').append(styles);
+    $('#beaconbrandingzone').append(script);
 
 
     var addfont = document.getElementById('addfont');
@@ -1199,9 +1193,9 @@ addfont.addEventListener('click', function () {
     });
 
       var serverRelativeUrl: string = this.context.pageContext.site.serverRelativeUrl;
-
- sp.web.getFileByServerRelativeUrl(`${serverRelativeUrl}/SiteAssets/mycss.txt`)
-      .setContent($("#ripplebranding").html());
+console.log($("#beaconbranding").html())
+ pnp.sp.web.getFileByServerRelativeUrl(`${serverRelativeUrl}/SiteAssets/mycss.txt`)
+      .setContent($("#beaconbranding").html());
 
 
 
@@ -1217,7 +1211,7 @@ private listitems: IPropertyPaneDropdownOption[];
 private listsDropdownDisabled: boolean = true;
 private listsitemsDropdownDisabled: boolean = true;
 private loadLists(): Promise<IPropertyPaneDropdownOption[]> {
-  sp.setup({
+   pnp.setup({
     spfxContext: this.context,
   });
 
@@ -1228,7 +1222,7 @@ private loadLists(): Promise<IPropertyPaneDropdownOption[]> {
     ) => {
 
 
-        sp.web.getFileByServerRelativeUrl(this.context.pageContext.site.serverRelativeUrl+`/SiteAssets/myfonts.txt`).getText()
+        pnp.sp.web.getFileByServerRelativeUrl(this.context.pageContext.site.serverRelativeUrl+`/SiteAssets/myfonts.txt`).getText()
         .then(function (data) {
           var splitdata = data.split(',')
           var items: IPropertyPaneDropdownOption[] = [];
@@ -1272,7 +1266,7 @@ protected onPropertyPaneConfigurationStart(): void {
 
   async function updateuploadedfile() {
 
-    let currentconetent = (await sp.web.getFileByServerRelativeUrl(`/SiteAssets/myfonts.txt`).getText()).toString()
+    let currentconetent = (await pnp.sp.web.getFileByServerRelativeUrl(`/SiteAssets/myfonts.txt`).getText()).toString()
   console.log(currentconetent)
 
 	const drop1_1_1 = csvToArray(currentconetent)
@@ -1282,7 +1276,7 @@ protected onPropertyPaneConfigurationStart(): void {
   }
 
 
-  function csvToArray(str, delimiter = ",") {
+  function csvToArray(str: string, delimiter = ",") {
     const headers = ["key", "text"];
 
     // slice from \n index + 1 to the end of the text
@@ -1294,7 +1288,7 @@ protected onPropertyPaneConfigurationStart(): void {
     // use headers.reduce to create an object
     // object properties derived from headers:values
     // the object passed as an element of the array
-    const arr = rows.map(function (row) {
+    const arr = rows.map(function (row: string) {
       const values = row.split(delimiter);
       const el = values.reduce(function (object, header, index) {
         object = { key: values[index], text: values[index] };

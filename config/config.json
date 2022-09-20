@@ -19,7 +19,12 @@
       ]
     }
   },
-  "externals": {},
+  "externals": {
+    "jquery": {
+      "path": "https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js",
+      "globalName": "jQuery"
+    }
+  },
   "localizedResources": {
     "SiliconReefBrandingWebPartStrings": "lib/webparts/siliconReefBranding/loc/{locale}.js",
     "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js",

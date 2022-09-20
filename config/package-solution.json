@@ -1,6 +1,17 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
   "solution": {
+    "metadata": {
+      "shortDescription": {
+        "default": "branding-component description"
+      },
+      "longDescription": {
+        "default": "branding-component description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
     "name": "branding-component-client-side-solution",
     "id": "da98550d-5f23-42eb-9eda-70a930074f89",
     "version": "1.0.0.0",

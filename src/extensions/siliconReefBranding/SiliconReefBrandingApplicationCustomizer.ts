@@ -5,7 +5,7 @@ import {
 } from '@microsoft/sp-application-base';
 import * as $ from 'jquery';
 import pnp, { List, ListEnsureResult } from "sp-pnp-js";
-import { sp } from "@pnp/sp";
+import { spfi, SPFI, SPFx, ISPFXContext } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/files";
 import "@pnp/sp/folders";
@@ -14,8 +14,8 @@ import "@pnp/sp/webs";
 import "@pnp/sp/hubsites/web";
 import { Webs, IWebs } from "@pnp/sp/webs";
 import { Lists, ILists } from "@pnp/sp/lists";
-import * as jQuery from "jquery";
-window["jQuery"] = window["$"] = $;
+
+
 import {AppInsights} from "applicationinsights-js";
 import * as strings from 'SiliconReefBrandingApplicationCustomizerStrings';
 
@@ -37,6 +37,7 @@ export default class SiliconReefBrandingApplicationCustomizer
 
     @override
   public onInit(): Promise<void> {
+    const sp = spfi().using(SPFx(this.context));
     console.log("onInit: Entered");
 
     console.log("Available placeholders: ",
@@ -45,7 +46,7 @@ export default class SiliconReefBrandingApplicationCustomizer
     // top placeholder..
     let topPlaceholder: PlaceholderContent = this.context.placeholderProvider.tryCreateContent(PlaceholderName.Top);
     if (topPlaceholder) {
-      topPlaceholder.domElement.innerHTML = `<div id="topplaceholder">
+      topPlaceholder.domElement.innerHTML = `<div id="beacontopplaceholder">
 
       </div>`;
     }
@@ -55,10 +56,8 @@ export default class SiliconReefBrandingApplicationCustomizer
     if (bottomPlaceholder) {
       bottomPlaceholder.domElement.innerHTML = ``;
     }
-    sp.setup({
-      spfxContext: this.context,
-    });
-    let appInsightsKey: String;
+
+    let appInsightsKey: string;
     appInsightsKey  = "bfb830c1-c429-4ca2-9a80-cd175ca8780f";
     AppInsights.downloadAndSetup({ instrumentationKey: appInsightsKey });
     AppInsights.trackEvent('Silicon Reef Branded Page', <any>{
@@ -74,11 +73,11 @@ export default class SiliconReefBrandingApplicationCustomizer
 var siteurl: any = this.context.pageContext.site.serverRelativeUrl;
     async function getcssfile() {
 
-      let currentconetent = (await sp.web.getFileByServerRelativeUrl(`${siteurl}/SiteAssets/mycss.txt`).getText()).toString();
- $("#topplaceholder").append("<style id='siliconreefbranding'>"+currentconetent+"</style>")
+      let currentconetent = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/mycss.txt`).getText()).toString();
+ $("#beacontopplaceholder").append("<style id='custombeaconbranding'>"+currentconetent+"</style>");
     }
 
 getcssfile()
-    return Promise.resolve<void>();
+return Promise.resolve();
   }
 }
