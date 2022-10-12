@@ -5,20 +5,22 @@ import {
 	IPropertyPaneDropdownOption,
 	PropertyPaneTextField,
 } from '@microsoft/sp-property-pane';
+import * as React from "react";
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { escape } from '@microsoft/sp-lodash-subset';
-
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import { CalloutTriggers } from '@pnp/spfx-property-controls/lib/PropertyFieldHeader';
+import { PropertyFieldMultiSelect } from '@pnp/spfx-property-controls/lib/PropertyFieldMultiSelect';
 import { PropertyFieldToggleWithCallout } from '@pnp/spfx-property-controls/lib/PropertyFieldToggleWithCallout';
+import { CalloutTriggers } from '@pnp/spfx-property-controls/lib/Callout';
+import { PropertyFieldLabelWithCallout } from '@pnp/spfx-property-controls/lib/PropertyFieldLabelWithCallout';
+import { PropertyFieldButtonWithCallout } from '@pnp/spfx-property-controls/lib/PropertyFieldButtonWithCallout';
+import { IPropertyFieldSwatchColorOption, PropertyFieldSwatchColorPicker, PropertyFieldSwatchColorPickerStyle } from '@pnp/spfx-property-controls/lib/PropertyFieldSwatchColorPicker';
 import UIkit from 'uikit';
 require("uikit/dist/css/uikit.min.css");
 require("uikit/dist/js/uikit.min.js");
 import Icons from 'uikit/dist/js/uikit-icons';
 import * as moment from "moment";
-
 import {
-
   PropertyPaneLabel,
   PropertyPaneToggle,
   PropertyPaneDropdown,
@@ -26,7 +28,7 @@ import {
   PropertyPaneLink,
   PropertyPaneSlider,PropertyPaneButton
 } from '@microsoft/sp-property-pane';
-import pnp, { List, ListEnsureResult } from "sp-pnp-js";
+import pnp, { ConsoleListener, List, ListEnsureResult } from "sp-pnp-js";
 import { spfi, SPFI, SPFx, ISPFXContext } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/files";
@@ -38,12 +40,13 @@ import { Webs, IWebs } from "@pnp/sp/webs";
 import { Lists, ILists } from "@pnp/sp/lists";
 import { PropertyFieldCodeEditor, PropertyFieldCodeEditorLanguages } from '@pnp/spfx-property-controls/lib/PropertyFieldCodeEditor';
 import { PropertyFieldColorPicker, PropertyFieldColorPickerStyle } from '@pnp/spfx-property-controls/lib/PropertyFieldColorPicker';
+import { PropertyFieldCollectionData, CustomCollectionFieldType } from '@pnp/spfx-property-controls/lib/PropertyFieldCollectionData';
 import * as strings from 'SiliconReefBrandingWebPartStrings';
 import {AppInsights} from "applicationinsights-js";
-
+import { IColor } from 'office-ui-fabric-react/lib/utilities/color';
 import * as jQuery from "jquery";
-
-
+import { initializeComponentRef } from '@uifabric/utilities';
+import { parseJSON } from 'jquery';
 export interface ISiliconReefBrandingWebPartProps {
   description: string;
   color: string;
@@ -52,7 +55,7 @@ export interface ISiliconReefBrandingWebPartProps {
   buttonprimary: string;
   h1color: string;
   h2color: string;
-
+  buttonprimaryhover: string;
   h1size: string;
 
   h2size: string;
@@ -69,6 +72,12 @@ export interface ISiliconReefBrandingWebPartProps {
   hubsite: boolean;
   font:string;
   font2:string;
+  font3:string;
+  bold:string;
+  italic:string;
+  light:string;
+  collectionData: any[];
+  collectionData1: any[];
 
 }
 
@@ -78,7 +87,7 @@ export default class SiliconReefBrandingWebPart extends BaseClientSideWebPart<IS
   public render(): void {
 
 
-    const sp = spfi().using(SPFx(this.context));
+const sp = spfi().using(SPFx(this.context));
     if(this.displayMode==2){
 
       jQuery("#siliconreefbranding").remove()
@@ -86,7 +95,41 @@ export default class SiliconReefBrandingWebPart extends BaseClientSideWebPart<IS
 
     }
 
+ let swatch1 = this.properties.collectionData;
+let swatch2 = this.properties.collectionData1;
+ if(swatch1&&swatch2){swatch2 = this.properties.collectionData.concat(this.properties.collectionData1)};
+if(swatch1){
+    var matcher: any = swatch1.filter( element1 => element1.background ==this.properties.background);}
 
+    else if(!swatch1){var matcher: any =  "#ffffff";}
+    console.log(matcher.length)
+    if(matcher.length >= 1){
+
+    var colormatch = matcher[0].text}
+    else if(matcher.length == 0) {var colormatch = matcher}
+
+    if(swatch1){
+    let matcher1: any = swatch1.filter( element1 => element1.background ==this.properties.color3);
+    if(matcher1.length <=0){
+      var colormatch1: any = "#ffffff"}
+      else {var colormatch1 = matcher1}
+    }
+
+    if(swatch2){
+      var matcher2: any = swatch2.filter( element1 => element1.background ==this.properties.buttonprimary);
+      var matcher3: any = swatch2.filter( element1 => element1.background ==this.properties.buttonprimaryhover);}
+
+      else if(!swatch2){var matcher2: any =  "#ffffff";var matcher3: any =  "#ffffff";}
+
+      if(matcher2.length >= 1){
+
+      var colormatch2 = matcher2[0].text}
+      else if(matcher2.length == 0) {var colormatch2 = matcher2}
+      if(matcher3.length >= 1){
+
+        var colormatch3 = matcher3[0].text}
+        else if(matcher3.length == 0) {var colormatch3 = matcher3}
+console.log(colormatch3)
     AppInsights.trackEvent('Branding webpart used on a page', <any>{
       Site:this.context.pageContext.site.absoluteUrl,
 			PageTitle: document.title,
@@ -101,16 +144,55 @@ var siteurl: any = this.context.pageContext.site.serverRelativeUrl;
    async function createfile(serverRelativeUrl: string) {
       try {
 
-        const fileExists = await sp.web
-          .getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`)
-          .select('Exists');
+        const fileExists =  await sp.web.getFolderByServerRelativePath(siteurl+`/SiteAssets`).files.getByUrl("myfonts.txt").exists();
 
   //Basically, the above line will tell you whether the file is present on the
   //Images folder or not
-console.log(fileExists)
+
         if (!fileExists) {
-          await sp.web.getFolderByServerRelativePath(`${siteurl}/SiteAssets/`)
-  .files.addUsingPath(`myfonts.txt`, "Open Sans,Poppins", { Overwrite: true });
+
+          await sp.web.getFolderByServerRelativePath(siteurl+`/SiteAssets`)
+  .files.addUsingPath(encodeURI(`myfonts.txt`), "Open Sans,Poppins", { Overwrite: true });
+        }
+
+
+      }
+      catch (error) {
+         //Log
+      }
+    }
+    async function createprimary(serverRelativeUrl: string) {
+      try {
+
+        const fileExists =  await sp.web.getFolderByServerRelativePath(siteurl+`/SiteAssets`).files.getByUrl("primary.txt").exists();
+
+  //Basically, the above line will tell you whether the file is present on the
+  //Images folder or not
+
+        if (!fileExists) {
+
+          await sp.web.getFolderByServerRelativePath(siteurl+`/SiteAssets`)
+  .files.addUsingPath(encodeURI(`primary.txt`), `[{"uniqueId":"1b580d73-4af4-43d3-bd9b-048db540727b","Title":"Dark grey","background":"#363636","text":"#ffffff","sortIdx":1},{"uniqueId":"d16056fc-7e80-4274-a229-3d5fc7ee6ddd","Title":"Coral","background":"#EF5F4C","text":"#ffffff","sortIdx":2},{"uniqueId":"dbfb8d63-7d54-40b9-b8f8-8707fda060a3","Title":"Blue","background":"#CCE0DC","text":"#363636","sortIdx":3}]`, { Overwrite: true });
+        }
+
+
+      }
+      catch (error) {
+         //Log
+      }
+    }
+    async function createsecondary(serverRelativeUrl: string) {
+      try {
+
+        const fileExists =  await sp.web.getFolderByServerRelativePath(`${siteurl}/SiteAssets`).files.getByUrl("secondary.txt").exists();
+
+  //Basically, the above line will tell you whether the file is present on the
+  //Images folder or not
+
+        if (!fileExists) {
+
+          await sp.web.getFolderByServerRelativePath(`${siteurl}/SiteAssets`)
+  .files.addUsingPath(encodeURI(`secondary.txt`), `[{"uniqueId":"40982aaf-8c7a-453c-8a33-066b4852fd00","Title":"Pale blue","background":"#EBF4F1","text":"#363636","sortIdx":1},{"uniqueId":"3fceaa31-76b7-4a25-88a6-a05969375a3c","Title":"Warm grey","background":"#a5a4a5","text":"#000000","sortIdx":2},{"uniqueId":"1741f604-9aae-4978-802e-3c640d79cc3a","Title":"Teal","background":"#4b99a2","text":"#ffffff","sortIdx":3},{"uniqueId":"8809ea12-d81b-429e-bbe2-9e901b31514f","Title":"Green","background":"#53955f","text":"#ffffff","sortIdx":4},{"uniqueId":"5cec170c-f7c7-4c20-8efa-e60d54efbe97","Title":"Amber","background":"#f7bc5f","text":"#363636","sortIdx":5},{"uniqueId":"c54f0bae-653c-45af-ba98-62f869724e5e","Title":"Blush","background":"#f7dcd4","text":"#363636","sortIdx":6}]`, { Overwrite: true });
         }
 
 
@@ -122,16 +204,14 @@ console.log(fileExists)
     async function createcssfile(serverRelativeUrl: string) {
       try {
 
-        const fileExists = await sp.web
-          .getFileByUrl(`${siteurl}/SiteAssets/mycss.txt`)
-          .select('Exists')
+        const fileExists = await sp.web.getFolderByServerRelativePath(siteurl+`/SiteAssets`).files.getByUrl("mycss.txt").exists();
 
   //Basically, the above line will tell you whether the file is present on the
   //Images folder or not
 console.log(fileExists)
         if (!fileExists) {
-          await sp.web.getFolderByServerRelativePath(`${siteurl}/SiteAssets/`)
-  .files.addUsingPath(`mycss.txt`, "",{ Overwrite: true });
+          await sp.web.getFolderByServerRelativePath(siteurl+`/SiteAssets`)
+  .files.addUsingPath(encodeURI(`mycss.txt`), "",{ Overwrite: true });
         }
 
 
@@ -147,6 +227,7 @@ console.log(fileExists)
       await  sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`)
       .setContent(currentconetent+","+jQuery("#gf").val()+"");
       var string = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString();
+
 var array = string.split(",");
 jQuery("#fonts").html("")
 array.forEach(element => {
@@ -155,7 +236,7 @@ array.forEach(element => {
     }
     async function updateuploadedfile(serverRelativeUrl: any, filename: string) {
       var serverRelativeUrl = siteurl
-      let currentconetent = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`).getText()).toString()
+      let currentconetent = (await sp.web.getFileByUrl(siteurl+`/SiteAssets/myfonts.txt`).getText()).toString()
 
       await  sp.web.getFileByUrl(`${siteurl}/SiteAssets/myfonts.txt`)
       .setContent(currentconetent+","+filename);
@@ -169,30 +250,46 @@ array.forEach(element => {
 
     createfile(siteurl)
     createcssfile(siteurl)
+    createprimary(siteurl)
+    createsecondary(siteurl)
     this.domElement.innerHTML = `<div id="allfonts"></div>
     <ul class="uk-subnav uk-subnav-pill" uk-switcher>
-    <li><a href="#">Branding Preview</a></li>
-    <li><a href="#">Font Manager</a></li>
+    <li><a href="#">Color</a></li>
+    <li><a href="#">Upload fonts</a></li>
+    <li><a href="#">Typography</a></li>
+    <li><a href="#">Image and Overlays</a></li>
 
 </ul>
 <ul class="uk-switcher uk-margin">
-<li style="padding:15px">
+<li  class="" style="padding:15px">
+<h1>Colour</h1>
+<div class="uk-grid-match" uk-grid >
 
-    <h1>Heading 1</h1>
-    <h2>Heading 2</h2>
-    <h3>Heading 3</h3>
-    <h4>Heading 4</h4>
-    <h5>Heading 5</h5>
-    <h6>Heading 6</h6>
-    <p style="font-size:16px">
-    Paragraph - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae hendrerit massa, sit amet suscipit ligula. Cras auctor nisi non enim lobortis, ac consequat sapien maximus. Aenean at iaculis urna. Praesent at felis ligula. Nullam lacinia sem quis orci malesuada ultricies. Nullam eleifend erat non odio volutpat, a gravida metus pulvinar. Proin interdum est nisi, ut commodo enim congue vitae. Pellentesque gravida et nulla id tempus. Integer at malesuada tellus, sit amet laoreet nunc. Suspendisse dictum, urna sed elementum auctor, est tellus consectetur felis, vel feugiat turpis nulla eu massa. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum pulvinar mi sed metus imperdiet, in dapibus felis eleifend. Donec lobortis mollis dignissim. Vivamus feugiat aliquet leo, ac commodo dolor porta quis.
-    </p>
-    <p style="font-size:16px">
-    Sed in orci eget turpis dapibus suscipit. Nulla vestibulum mi odio, non semper nibh accumsan semper. Suspendisse tristique ligula neque, non porta neque ultricies eu. Morbi laoreet lacus sem, aliquam ultricies mi facilisis non. Sed ipsum lectus, volutpat nec auctor a, lacinia non metus. Phasellus rhoncus nulla risus, eu efficitur ligula malesuada vel. Phasellus sed ex et enim gravida dapibus. Proin ac est rutrum, dictum leo at, finibus magna. Donec venenatis nulla at ex convallis, ut rutrum mi scelerisque. Cras pellentesque dignissim accumsan. Maecenas nec rhoncus mi. Sed vulputate elit sodales velit ultrices, tincidunt sollicitudin nulla dictum. Mauris et nisi a nisl sodales accumsan a ac nulla.
-    </p>
-    <blockquote>Quote</blockquote>
+    <div class="uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body">
 
-    </div></li>
+        <h3>Primary colours</h3>
+       <p> Create space and contrast- use as much white space as possible- use as much contrast with colours for accessibility</p>
+        </div>
+    </div>
+    <div class="uk-width-expand@m">
+        <div id="access" class="uk-card uk-card-default uk-card-body uk-grid uk-child-width-expand@s" style="margin-left:-15px"></div>
+    </div>
+</div>
+<div class="uk-grid-match" uk-grid >
+
+    <div class="uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body">
+        <h3>Secondary colours</h3>
+       <p>Supports the primary palette- should only be used in small areas</p>
+
+        </div>
+    </div>
+    <div class="uk-width-expand@m">
+        <div id="access2" class="uk-card uk-card-default uk-card-body uk-grid uk-child-width-1-4@m " style="margin-left:-15px"></div>
+    </div>
+</div>
+   </li>
 <li>
     <div style="padding:15px" id="branding">
     <form>
@@ -200,21 +297,14 @@ array.forEach(element => {
     <label><input onchange="jQuery('.searchitem').show();jQuery('.googlefont').show();jQuery('.fontbutton').show();jQuery('.js-upload').hide();" class="uk-radio" type="radio" name="radio2" > Import a Google font</label>
 
     <label><input onchange="jQuery('.searchitem').hide();jQuery('.googlefont').hide();jQuery('.fontbutton').hide();jQuery('.js-upload').show();" class="uk-radio" type="radio" name="radio2"> Upload a font file</label>
-
-
-
     <div style="display:none" class="uk-margin searchitem">
     <input id="fontsearch" class="uk-input" type="text" placeholder="Search">
 </div>
-
     <div style="display:none" class="uk-margin googlefont">
-
     <select id="gf" class="uk-select">
-
     </select>
     <div>
     <a id="addfont" class="uk-button uk-button-text" href="#modal-example" uk-toggle>+ Add to my fonts</a>
-
     <!-- This is the modal -->
     <div id="modal-example" uk-modal>
         <div class="uk-modal-dialog uk-modal-body">
@@ -230,25 +320,117 @@ array.forEach(element => {
     </div>
 </div>
 </div>
-
 <div  style="display:none" class="js-upload">
-
     <div >
     <input type="file" id="uploadfont" />
 
     </div>
     <a id="uploadfontclick" class="uk-button uk-button-text" href="#modal-example" uk-toggle>+ Add to my fonts</a>
 </div>
-
-
-
 </form>
-</li>
+</li >
+<li class="" style="padding:15px"><article class="uk-article">
 
-    <div id="beaconbrandingzone"></div>`
+<h1 >Heading 1</h1>
+<h2 >Heading 2</h2>
+<h3 >Heading 3</h3>
+<h4 >Heading 4</h4>
+<h5 >Heading 5</h5>
 
+<p class="intro">Intro -- Medium sentence case - line clamped at 2 lines</p>
+<p class="uk-article-meta">Meta -- Written by <a href="#">Super User</a> on 12 April 2012. Posted in <a href="#">Blog</a></p>
 
+<p style="font-weight:norma;">Paragraph -- Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.</p>
+<p><strong >Bold -- Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.</strong></p>
+<i>Italic -- Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</i>
+<p style="font-weight:300" >Light text -- Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.</p>
+<div class="uk-grid-small uk-child-width-auto" uk-grid>
+    <div>
+        <a class="uk-button uk-button-text" href="#">Read more</a>
+    </div>
+    <div>
+        <a class="uk-button uk-button-text" href="#">5 Comments</a>
+    </div>
+</div>
+<p uk-margin>
+    <button class="uk-button uk-button-default">Default</button>
+    <button class="uk-button uk-button-primary">Primary</button>
+    <button class="uk-button uk-button-secondary">Secondary</button>
+    <button class="uk-button uk-button-danger">Danger</button>
 
+    <button class="uk-button uk-button-link">Link</button>
+</p>
+</article></li>
+<li class="" style="padding:15px">Overlays</li>
+    <div id="beaconbrandingzone"></div>`;
+    function hexToRgb(hex: string) {
+      var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+      hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+      });
+
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+    function luminance(r: any, g: any, b: any) {
+      var a = [r, g, b].map(function (v) {
+          v /= 255;
+          return v <= 0.03928
+              ? v / 12.92
+              : Math.pow( (v + 0.055) / 1.055, 2.4 );
+      });
+      return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+  }
+    console.log(this.properties.collectionData)
+    console.log(this.properties.collectionData1)
+    let palette = this.properties.collectionData;
+    let palette2 = this.properties.collectionData1;
+    if(palette){
+    palette.forEach(color => {
+      const color1 = color.background;
+const color2 = color.text;
+const color1rgb = hexToRgb(color1);
+const color2rgb = hexToRgb(color2);
+const color1luminance = luminance(color1rgb.r, color1rgb.g, color1rgb.b);
+const color2luminance = luminance(color2rgb.r, color2rgb.g, color2rgb.b);
+const ratio = color1luminance > color2luminance
+    ? ((color2luminance + 0.05) / (color1luminance + 0.05))
+    : ((color1luminance + 0.05) / (color2luminance + 0.05));
+    const result = `
+                AA-level large text:  ${ratio < 1/3 ? ' <strong>✔ PASS</strong>' : '<strong>X FAIL</strong>' }<br>
+                AA-level small text:  ${ratio < 1/4.5 ? ' <strong>✔ PASS</strong>' : '<strong>X FAIL</strong>' }<br>
+                AAA-level large text: ${ratio < 1/4.5 ? '<strong>✔ PASS</strong>' : '<strong>X FAIL</strong>' }<br>
+                AAA-level small text: ${ratio < 1/7 ? '<strong>✔ PASS</strong>' : '<strong>X FAIL</strong>' }
+               `;
+var rgb = color1rgb.r+","+ color1rgb.g+","+ color1rgb.b
+      let swatchhtml = `<div style="background:`+color.background+`; color:`+color.text+`; padding:15px;"><p style="font-weight:bold">`+color.Title+` <br>Hex: `+color.background+`<br>RGB: `+rgb+` </p></br><span>`+result+`</span></div>`
+$("#access").append(swatchhtml)
+    })};
+    if(palette2){
+      palette2.forEach(color => {
+        const color1 = color.background;
+  const color2 = color.text;
+  const color1rgb = hexToRgb(color1);
+  const color2rgb = hexToRgb(color2);
+  const color1luminance = luminance(color1rgb.r, color1rgb.g, color1rgb.b);
+  const color2luminance = luminance(color2rgb.r, color2rgb.g, color2rgb.b);
+  const ratio = color1luminance > color2luminance
+      ? ((color2luminance + 0.05) / (color1luminance + 0.05))
+      : ((color1luminance + 0.05) / (color2luminance + 0.05));
+      const result = `
+                  AA-level large text:  ${ratio < 1/3 ? ' <strong>✔ PASS</strong>' : '<strong>X FAIL</strong>' }<br>
+                  AA-level small text:  ${ratio < 1/4.5 ? ' <strong>✔ PASS</strong>' : '<strong>X FAIL</strong>' }<br>
+                  AAA-level large text: ${ratio < 1/4.5 ? '<strong>✔ PASS</strong>' : '<strong>X FAIL</strong>' }<br>
+                  AAA-level small text: ${ratio < 1/7 ? '<strong>✔ PASS</strong>' : '<strong>X FAIL</strong>' }
+                 `;
+                 var rgb = color1rgb.r+","+ color1rgb.g+","+ color1rgb.b
+        let swatchhtml = `<div style="background:`+color.background+`; color:`+color.text+`;padding:15px;"><p style="font-weight:bold">`+color.Title+` <br>Hex: `+color.background+`<br>RGB: `+rgb+` </p></br><span>`+result+`</span></div>`
+  $("#access2").append(swatchhtml)
+      })};
     var inputElement = jQuery("#uploadfontclick");
     jQuery(inputElement).on('click', function () {
       uploadFileFromControl()
@@ -275,24 +457,16 @@ array.forEach(element => {
       .then(data  => {
 
         var fonts = data.items;
-
-
-
-
-
        for(var k in fonts){
         if(fonts[k].family.includes(jQuery("#fontsearch").val())){
           jQuery("#gf").append("<option>"+fonts[k].family+"</option>")
 
        }
-
-
-
-
-
-   } });
-
-    });
+   }
+   }
+   );
+    }
+    );
 
      var uppercase;
      if(this.properties.newsuppercase == undefined){uppercase = ""}
@@ -306,24 +480,62 @@ array.forEach(element => {
       if(this.properties.h1color != undefined) {h1c ="color:"+ this.properties.h1color;}
      var h1s;
       if(this.properties.h1size != undefined) {h1s ="font-size:"+ this.properties.h1size+" !important";}
-
-
       let h2c;
       if(this.properties.h2color != undefined) {h2c ="color:"+ this.properties.h2color;}
      var h2s;
       if(this.properties.h2size != undefined) {h2s ="font-size:"+ this.properties.h2size+" !important" ;}
 let bodyimport;
+let bodyimport1;
+let bodyimport2;
+let bodyimport3;
 let headerimport;
+let headerimport2;
 let headerfont;
+let headerfont2;
 let font;
+let font1;
+let font2;
+let font3;
 if(this.properties.font==undefined){font="Poppins"; bodyimport = ""} else
 if(this.properties.font.indexOf(".") > -1){font = this.properties.font.split(".")[0]; bodyimport = `@font-face {
   font-family: `+this.properties.font.split(".")[0]+`;
   src: url(`+this.context.pageContext.site.absoluteUrl+`/SiteAssets/`+this.properties.font+`);
-  font-weight: bold;
+  font-weight: normal;
+  font-style:normal;
 }` }
 else {font=this.properties.font;bodyimport =`
-@import url('https://fonts.googleapis.com/css2?family=`+this.properties.font+`:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');` }
+@import url('https://fonts.googleapis.com/css2?family=`+this.properties.font+`:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');`
+}
+if(this.properties.bold==undefined){font1="Poppins"; bodyimport1 = ""} else
+if(this.properties.bold.indexOf(".") > -1){font1 = this.properties.font.split(".")[0]; bodyimport1 = `@font-face {
+  font-family: `+this.properties.font.split(".")[0]+`;
+  src: url(`+this.context.pageContext.site.absoluteUrl+`/SiteAssets/`+this.properties.bold+`);
+  font-weight: bold;
+  font-style:normal;
+}` }
+else {font1=this.properties.bold;bodyimport1 =`
+@import url('https://fonts.googleapis.com/css2?family=`+this.properties.font+`:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');`
+}
+if(this.properties.italic==undefined){font2="Poppins"; bodyimport2 = ""} else
+if(this.properties.italic.indexOf(".") > -1){font2 = this.properties.font.split(".")[0]; bodyimport2 = `@font-face {
+  font-family: `+this.properties.font.split(".")[0]+`;
+  src: url(`+this.context.pageContext.site.absoluteUrl+`/SiteAssets/`+this.properties.italic+`);
+  font-weight:normal;
+  font-style:italic;
+}` }
+else {font2=this.properties.italic;bodyimport2 =`
+@import url('https://fonts.googleapis.com/css2?family=`+this.properties.font+`:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');`
+}
+if(this.properties.light==undefined){font3="Poppins"; bodyimport3 = ""} else
+if(this.properties.light.indexOf(".") > -1){font = this.properties.font.split(".")[0]; bodyimport3 = `@font-face {
+  font-family: `+this.properties.font.split(".")[0]+`;
+  src: url(`+this.context.pageContext.site.absoluteUrl+`/SiteAssets/`+this.properties.light+`);
+  font-weight:300;
+  font-style:normal;
+}` }
+else {font3=this.properties.light;bodyimport3 =`
+@import url('https://fonts.googleapis.com/css2?family=`+this.properties.font+`:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');`
+}
 
 
 if(this.properties.font2==undefined){headerfont="Poppins"; headerimport = ""} else
@@ -333,12 +545,25 @@ if(this.properties.font2.indexOf(".") > -1){headerfont = this.properties.font2.s
   font-weight: bold;
 }` }
 else {headerfont=this.properties.font2;headerimport =`@import url('https://fonts.googleapis.com/css2?family=`+this.properties.font2+`:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');` }
+if(this.properties.font3==undefined){headerfont2="Poppins"; headerimport2 = ""} else
+if(this.properties.font3.indexOf(".") > -1){headerfont2 = this.properties.font3.split(".")[0]; headerimport2 = `@font-face {
+  font-family: `+this.properties.font3.split(".")[0]+`;
+  src: url(`+this.context.pageContext.site.absoluteUrl+`/SiteAssets/`+this.properties.font3+`);
+  font-weight: bold;
+}` }
+else {headerfont2=this.properties.font3;headerimport2 =`@import url('https://fonts.googleapis.com/css2?family=`+this.properties.font3+`:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');` }
+
+
 
      SPComponentLoader.loadCss(this.properties.description);
      var styles =
     `<style data-load-themed-styles="true" id="beaconbranding">
     `+bodyimport+`
+    `+bodyimport1+`
+    `+bodyimport2+`
+    `+bodyimport3+`
     `+headerimport+`
+    `+headerimport2+`
     .uk-subnav-pill>.uk-active>a {
       background-color: black !important;
       .uk-subnav-pill>*>:first-child {
@@ -348,16 +573,18 @@ else {headerfont=this.properties.font2;headerimport =`@import url('https://fonts
     }
   }
   .ms-DocumentCardTile .ms-DocumentCard:not(.ms-DocumentCard--compact) .ms-DocumentCardTile-titleArea .ms-DocumentCardLocation, .ms-NewsSiteTitle.text_siteLink  {
-    color:  `+this.properties.color2+` !important;
+    color:  `+colormatch1+` !important;
 }
 .ms-NewsPinningItemImage img {
   max-width: 100%;
   height: -webkit-fill-available !important;
   box-sizing: border-box;
 }
-    .ms-Button--primary, .ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"]{background:`+this.properties.buttonprimary+`;border:1px solid `+this.properties.buttonprimary+`;}
-    .ms-Button--primary:hover, .ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"]{background:`+this.properties.buttonprimary+` ;border:1px solid `+this.properties.buttonprimary+`;opacity:.80}
-    .ms-Button--primary .ms-Button-label, .ms-Button--primary .ms-Button-icon, .ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"]{color:`+this.properties.fontcolor+` !important;`+buppercase+`}
+
+    .uk-button-primary,.uk-button-secondary:hover, .ms-Button--primary, .ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"]{background:`+this.properties.buttonprimary+` ;border:1px solid `+this.properties.buttonprimary+`; }
+
+    .ms-Button--primary .ms-Button-label, .ms-Button--primary .ms-Button-icon, .ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"], .uk-button-primary{color:`+colormatch2+` !important;`+buppercase+`}
+    .uk-button-secondary, .ms-Button--primary:hover, .uk-button-primary:hover,.ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"]{background:`+this.properties.buttonprimaryhover+` ;border:1px solid `+this.properties.buttonprimaryhover+`;color:`+colormatch3+` !important}
     h3, h4, h5, h6,  h4.title, h4, h2,p, .od-FieldRenderer-text,tspan,.noopener, .datetime, .location, .category, .ms-TextField-field,.ms-TextField,
     .ms-TextField--multiline div[data-automation-id*="metadataTitle"],.ms-DetailsHeader-cellName, .overlay-text-wrapper,
     .ms-Link,.root-40,  div[data-automation-id*="people-card"] > div > div > div,
@@ -379,24 +606,27 @@ else {headerfont=this.properties.font2;headerimport =`@import url('https://fonts
  div[data-automation-id*="HeroTitle"],
  span[data-automation-id*="newsItemTitle"],
  .uk-h1,
- .uk-h2,
+
 
  .uk-heading-2xlarge,
  .uk-heading-large,
- .uk-heading-medium,
- .uk-heading-small,
+
  .uk-heading-xlarge,
  h1,
- h2, .webpart-header{
-    font-family:`+headerfont+` !Important;line-height:1.8em !important;`+uppercase+`
+ {
+    font-family:`+headerfont+` !Important;line-height:1.3em !important;`+uppercase+`
   }
+  .uk-h2,.uk-heading-medium,
+ .uk-heading-small,h2, .webpart-header{
+  font-family:`+headerfont2+` !Important;line-height:1.3em !important;`+uppercase+`
+ }
   [data-log-name="DisplayName"]{font-size:18px !important}
    .ms-DocumentCard{background:white !important}
    /*PRIMARY COLOUR*/
 
 .wc-console input[type=text], .wc-console textarea, .useThemes .panel-header[data-v-60e023b1], .card-title, .comments a,.ms-HorizontalNavItem-link
 {
-	 color: `+this.properties.color+` !Important;
+	 color: `+colormatch+` !Important;
 }
 div[data-automation-id*="TitleTextId"],
 
@@ -420,28 +650,23 @@ div[data-automation-id*="TitleTextId"],
 div[data-automation-id*="HeroTitle"]{ `+uppercase+`}
 .wc-console svg, .wc-message-from-bot svg.wc-message-callout path
 {
-    fill: `+this.properties.color+` !Important
+    fill: `+colormatch+` !Important
 }
 button[data-automation-id*="button-web-part"],.wc-header, .o365cs-base .o365sx-button, .wc-message-from-bot .wc-message-content, footer > div, .o365sx-navbar,  .o365cs-base .o365sx-appName, .o365cs-base .o365sx-appName:visited, .o365cs-base .o365sx-waffle, .o365cs-base .o365sx-waffle
 {
-    background: `+this.properties.color+` !important;
+    background: `+colormatch+` !important;
     background: `+this.properties.background+` !important;
-
 }
-#showhero {background:`+this.properties.color2+` !important;}
+#showhero {background:`+colormatch1+` !important;}
 
-.nav-link{ `+uppercase+` color:`+this.properties.fontcolor+` !important; font-size:`+this.properties.fontsize+` !important}
+.nav-link{ `+uppercase+` color:`+colormatch2+` !important; font-size:`+this.properties.fontsize+` !important}
    /*RIPPLE NEWS STYLES*/
 .intro{color:#666 !important}
-
    li[data-tool*="warning"] {display:none}
 li[data-tool*="quote"] {display:none}
 li[data-tool*="link"] {display:none}
 li[data-tool*="table"] {display:none}
 li[data-tool*="checklist"] {display:none}
-
-
-
 .ms-Checkbox {
     padding-top: 20px
 }
@@ -645,7 +870,7 @@ body{font-family:`+font+` !important}
     position: relative;
     z-index: 1;
     display: block;
-    background: #FFFFFF;
+    background: #ffffff;
     min-width: 25%;
     height: 340px;
     -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
@@ -714,7 +939,7 @@ body{font-family:`+font+` !important}
     .post-module .post-content {
         position: absolute;
         bottom: 0px;
-        background: #FFFFFF;
+        background: #ffffff;
         width: 100%;
         padding: 15px;
         -webkti-box-sizing: border-box;
@@ -1010,7 +1235,7 @@ footer > div {
   text-decoration: none;
   white-space: nowrap;
   font-size: 18px;
-  color: `+this.properties.color+`;
+  color: `+colormatch+`;
   /* width: 244px; */
   font-weight: 700;
  font-family: `+font+`;
@@ -1029,29 +1254,29 @@ div[data-automation-id*="CanvasControl"], .root-78 {
 
 
 .ms-HorizontalNavItem-link, .ms-Menu-heading {
-  color: `+this.properties.color2+` !important;
+  color: `+colormatch1+` !important;
 
   font-family:
   `+font+`;
 }
 .ms-Icon--WaffleOffice365, #O365_AppName > span, .ms-Icon--Settings, .ms-Icon--Help, .o365cs-base {
-  color:`+this.properties.color+` !important;
+  color:`+colormatch+` !important;
 }
 #spSiteHeader > div {background:`+this.properties.color3+` !important;}
-.ms-Menu-heading{ color: `+this.properties.color2+` !important;}
+.ms-Menu-heading{ color: `+colormatch1+` !important;}
 .ms-Menu-item .ms-ContextualMenu-itemText {
-  color: `+this.properties.color2+` !important;
+  color: `+colormatch1+` !important;
   width: 244px;
   font-family:
   `+font+`;
 }
 .ms-HorizontalNav-chevronDown {
-  color: `+this.properties.color2+` !important;
+  color: `+colormatch1+` !important;
   background: transparent !important;
 
 }
 div[data-automation-id*="button-card"], div[data-automation-id*="compact-card"] {
- color:`+this.properties.fontcolor+`;
+ color:`+colormatch2+`;
   width: 100%;
   box-sizing: border-box;
   position: relative;
@@ -1064,21 +1289,21 @@ div[data-automation-id*="button-card"], div[data-automation-id*="compact-card"] 
   font-family: '`+font+`', sans-serif
 }
 div[data-automation-id*="button-card"]:hover {
- color:`+this.properties.fontcolor+`;
+ color:`+colormatch3+`;
   width: 100%;
   box-sizing: border-box;
   position: relative;
   outline: 0px;
   border: none;
   border-radius: 2px;
-  background-color: `+this.properties.buttonprimary+`;
+  background-color: `+this.properties.buttonprimaryhover+`;
   opacity: 0.8;
   user-select: text;
 
   font-family: '`+font+`', sans-serif
 }
 div[data-automation-id*="quick-links-item-title"] {
-  color: `+this.properties.fontcolor+`;
+  color: `+colormatch2+`;
   line-height: 20px;
   margin-bottom: 2px;
 
@@ -1088,7 +1313,7 @@ div[data-automation-id*="quick-links-item-title"] {
   font-family: '`+font+`', sans-serif
 }
 div[data-automation-id*="button-card"] > div > i {
- color:`+this.properties.fontcolor+`;
+ color:`+colormatch2+`;
 
 }
 .ButtonCard {
@@ -1122,7 +1347,7 @@ div[data-automation-id*="captionElement"]  {
   font-family: '`+font+`', sans-serif
 }
 div[data-automation-id*="overlay-text-wrapper"] {
-  background-color: `+this.properties.color2+` !important;
+  background-color: `+colormatch1+` !important;
   opacity:.8;
   white-space: pre-wrap;
   word-break: break-word;
@@ -1169,8 +1394,352 @@ div[data-automation-id*="titleRegionBackgroundImage"] > image{
     width: 100% !important;
 }
 
+div.uk-overlay.uk-position-bottom.uk-light>div>a:after, div.uk-overlay.uk-position-center.uk-light>div>a:after {
+  content: '';
+  position: absolute;
+  width: 90%;
+  margin: auto;
+  transform: scaleX(0);
+  height: 3px;
+  bottom: 20px;
+  left: 0;
+  background-color: #fc4191  !important;
+  transform-origin: bottom right;
+  transition: transform 0.35s ease-out;
+}
+.
+#getimages>span,
+#save-button {
+  color: white !important;
+}
 
+
+
+#gettitle,
+#getintro {
+
+  color: #53565A;
+}
+
+
+
+
+
+
+
+
+#head {
+  font-weight: 600
+}
+
+
+#followcamp,
+#followteams,
+#followlocations {
+  font-weight: 600
+}
+
+
+
+
+
+
+
+
+
+#head {
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+#followcamp {
+  font-weight: 600
+}
+
+
+
+.bodytext {
+  font-size: 15px;
+  line-height: 18pt;
+  color: white;
+  font-weight: 400;
+  width: 60%;
+}
+
+.ce-paragraph[data-placeholder]:empty::before {
+  font-size: 18px;
+  font-weight: 400 !important
+}
+
+.ce-paragraph {
+  margin-bottom: 20px
+}
+
+.ce-toolbox__button,
+.ce-toolbar__plus {
+  width: 24px !Important;
+  height: 24px !important;
+  left: -10px;
+}
+
+.ce-block__content {
+  padding-left: 5px;
+  padding-right: 5px;
+  width: 90%;
+  max-width: 90%
+}
+
+.ce-toolbar__content {
+  max-width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+
+a>i.delete.icon {
+  color: white !important
+}
+
+
+
+.codex-editor--narrow .ce-toolbar__plus {
+  left: 1% !important;
+}
+
+.ce-toolbox {
+  left: 30px
+}
+
+.codex-editor svg {
+  font-size: 14px !important;
+  fill: currentColor;
+}
+
+.ce-toolbox__button,
+.ce-toolbar__plus {
+  border: 1px solid silver;
+  border-radius: 100%;
+  padding: 8px;
+  margin-right: 12px;
+  height: 30px !important;
+  width: 30px !Important;
+  padding: 5px;
+}
+
+.codex-editor--narrow .ce-toolbox {
+  left: 7% !important;
+}
+
+.ce-toolbar {
+  right: 30px
+}
+
+.uk-card-default {
+  background: #fff;
+  color: #666;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+}
+
+div:empty:before {
+  content: attr(data-placeholder);
+  font-size: 30px;
+  color: gray
+}
+
+.preview {
+  overflow: hidden;
+  width: 200px;
+  height: 200px;
+}
+
+#workbenchPageContent {
+  max-width: 1400px
+}
+
+[contenteditable][placeholder]:empty:before {
+  content: attr(placeholder);
+  color: #bababa;
+}
+
+.ce-paragraph a {
+  font-weight: 700
+}
+
+.ce-paragraph a:hover {
+  color: #CCE0DC
+}
+
+.format-markdown a {
+  color: white !Important;
+
+}
+
+.format-markdown img {
+  border-radius: 7px;
+  padding: 1px;
+  width: 99%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.ce-header {
+  padding-bottom: 20px
+}
+
+.ce-paragraph a {
+  color: rgb(239, 95, 76);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ui.comments .comment .metadata {
+  display: inline-block;
+  margin-left: .5em;
+  color: #666;
+  font-size: .875em;
+}
+
+.ce-paragraph {
+
+  outline: none;
+  font-size: 18px;
+  line-height: 30px;
+  color: #363636;
+}
+
+.ce-paragraph {
+  line-height: 30px !important;
+  outline: none;
+  font-size: 18px !important;
+  line-height: 30px;
+
+  font-weight: 400 !important;
+}
+
+.ce-header {
+  text-transform: uppercase;
+  margin-bottom: 20px
+}
+
+.image-tool--withBorder img {
+  border: 2px solid rgba(0, 0, 0, .1);
+}
+
+.cdx-input image-tool__caption,
+div:empty:before {
+  content: attr(data-placeholder);
+  font-size: 14px !Important;
+  color: gray;
+}
+
+.image-tool--filled .cdx-button {
+  display: none
+}
+
+#article .cdx-alert__message:empty,
+#article .cdx-input image-tool__caption:empty {
+  display: none
+}
+
+div:empty:before {
+  display: none
+}
+
+
+
+.select-wrapper {
+  margin: auto;
+  max-width: 600px;
+  width: calc(100% - 40px);
+}
+
+a.ui.label {
+
+  background-image: none;
+
+  font-weight: 300
+}
+
+.dropdown {
+  width: 100%
+}
+
+h3 > .heroclick, h2 > .heroclick{font-family:RRPioneer-LightCondensed-woff2 !Important;line-height: 1.2;
+}
+
+.CallToAction-Icon {position: relative;
+  bottom: 10px;
+  color: #fc4191 !important;
+}
+[data-automation-id="yammer_feed"]{padding:15px}
+.uk-accordion>:nth-child(n+2) {
+  margin-top: 40px;
+}
+
+#panelcomment,
+#panellikes,
+#panelheart,
+#panelcurious,
+#panelclap {
+  font-weight: 700
+}
+[data-automation-id="captionElement"], .webpart-header {
+  font-size: 36px !important;
+
+
+}
+.uk-marker{font-size: 25px !important;
+  height: 45px!important;
+  width: 45px!important;}
+.uk-button-danger {
+  background-color: #f0506e;
+  color: #fff !important;
+  border: 1px solid transparent;
+}
+#int {
+  font-size: 32px;
+  color: #444;
+  font-weight: 500 !important;
+}
+
+.uk-accordion-title {
+
+
+  font-size: 18px;
+  font-weight: 600 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .04);
+  padding-bottom: 10PX;
+}
+
+.nav-link {
+  color: #ffffff !important;
+  font-size: 14px !important
+}
+.null{visibility:hidden}
+ .uk-accordion-title {
+  font-size: 24px;
+  font-weight: 600 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .04);
+  padding-bottom: 10PX;
+}
+.uk-article-meta{color:#666}
+[data-automation-id="propertyPaneGroupContent"] button {background:`+this.properties.buttonprimary+`;color:`+colormatch2+`}
+
+.PropertyFieldCollectionData__panel__color-field > div{width:100% !important}
+.ms-CustomFieldHost label {font-size:18px;margin-top:15px}
 div[data-automation-id*="BaseCollection-FreshData"]  > div{background:transparent !important}
+[aria-label="Silicon Reef Branding Customiser property pane"]{
+  font-size: 14px;
+    font-weight: 400;
+    top: 0;
+    bottom: 0;
+    position: absolute;
+    background-color: #ffffff;
+    width: 340px;
+    -webkit-font-smoothing: antialiased;
+    max-width: 600px;
+    width:600px;
+}
+p a{color:red !important}
 `+this.properties.CustomCSS+`
 
     </style> `;
@@ -1197,11 +1766,15 @@ console.log($("#beaconbranding").html())
  pnp.sp.web.getFileByServerRelativeUrl(`${serverRelativeUrl}/SiteAssets/mycss.txt`)
       .setContent($("#beaconbranding").html());
 
-
-
+      pnp.sp.web.getFileByServerRelativeUrl(`${serverRelativeUrl}/SiteAssets/primary.txt`)
+      .setContent(JSON.stringify(this.properties.collectionData));
+      pnp.sp.web.getFileByServerRelativeUrl(`${serverRelativeUrl}/SiteAssets/secondary.txt`)
+      .setContent(JSON.stringify(this.properties.collectionData1));
+      console.log(JSON.stringify(this.properties.collectionData))
 
 }
 private lists: IPropertyPaneDropdownOption[];
+private swatcharray: Array<IPropertyFieldSwatchColorOption>;
 private thisdropitems: Array<IPropertyPaneDropdownOption>;
 private thisdropitems2: Array<IPropertyPaneDropdownOption>;
 private thisdropitems3: Array<IPropertyPaneDropdownOption>;
@@ -1303,99 +1876,242 @@ protected onPropertyPaneConfigurationStart(): void {
     this.fontitems = arr
     return arr;
   }
-
-
-
-
 }
-
-
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
+
+    if(this.properties.collectionData){
+
+
+      var swatcharray: IPropertyFieldSwatchColorOption[]=[{color:"#000000", label:"#ffffff"},{color:"#ffffff", label:"#000000"}];
+      const swatcha = this.properties.collectionData;
+
+
+
+console.log(this.properties.background)
+
+      swatcha.forEach(element => {
+       return swatcharray.push({color:element.background, label:element.text},);
+
+      });
+
+    }
+    if(this.properties.collectionData1){
+
+
+      var swatcharray1: IPropertyFieldSwatchColorOption[]=[{color:"#000000", label:"#ffffff"},{color:"#ffffff", label:"#000000"}];
+      const swatcha = this.properties.collectionData;
+      const swatchb = this.properties.collectionData1;
+
+
+console.log(this.properties.background)
+
+      swatcha.forEach(element => {
+       return swatcharray1.push({color:element.background, label:element.text},);
+
+      });
+      swatchb.forEach(element => {
+        return swatcharray1.push({color:element.background, label:element.text},);
+
+       });
+    }
     return {
       pages: [
         {
-          header: {
-            description: 'Font Settings'
 
-          },
 
           groups: [
             {
               groupName: "",
               groupFields: [
 
-
+                PropertyFieldLabelWithCallout('fakeProp', {
+                  calloutTrigger: CalloutTriggers.Hover,
+                  key: 'fonts',
+                  calloutContent: 'Select from fonts uploaded in the font uploader section',
+                  calloutWidth: 200,
+                  text: 'Select fonts'
+                }),
                 PropertyPaneDropdown('font', {
-									label: "Main Font",
-									options: this.lists
+
+									label: "Regular",
+									options: this.lists,
+
 								}),
-                PropertyPaneDropdown('font2', {
-									label: "Header Font",
-									options: this.lists
+                PropertyPaneDropdown('bold', {
+
+									label: "Bold",
+									options: this.lists,
+
+								}),
+                PropertyPaneDropdown('italic', {
+
+									label: "italic",
+									options: this.lists,
+
+								}),
+                PropertyPaneDropdown('light', {
+
+									label: "Light",
+									options: this.lists,
+
 								}),]
               },]
 
 
         },
         {
-          header: {
-            description: 'Colour Palette'
 
-          },
 
           groups: [
             {
-              groupName: "Colours",
+              groupName: "",
               groupFields: [
+                PropertyFieldLabelWithCallout('fakeProp1', {
+                  calloutTrigger: CalloutTriggers.Hover,
+                  key: 'colours',
+                  calloutContent: 'Create primary and secondary colour palettes which can be used across all Beacon components, check accessibility against guidelines',
+                  calloutWidth: 200,
+                  text: 'Select colours'
+                }),
+                PropertyFieldCollectionData("collectionData", {
+                  key: "collectionData",
+                  label: "",
+                  panelHeader: "Select available primary colours",
+                  manageBtnLabel: "Manage Primary Palette",
+                  enableSorting:true,
+                  value: this.properties.collectionData,
+                  fields: [
+                    {
+                      id: "Title",
+                      title: "Title",
+                      type: CustomCollectionFieldType.string,
+                      required: true
+                    },
+                    {
+                      id: "background",
+                      title: "Background",
+                      type: CustomCollectionFieldType.color,
+                      required: true
+                    },
+                    {
+                      id: "text",
+                      title: "Foreground",
+                      type: CustomCollectionFieldType.color,
+                      required: true,
 
+                    },
 
-                PropertyFieldColorPicker('background', {
-                  label: 'Top bar Background',
+                  ],
+                  disabled: false
+                }),
+                PropertyFieldCollectionData("collectionData1", {
+                  key: "collectionData",
+                  label: "",
+                  panelHeader: "Select available secondary colours",
+                  manageBtnLabel: "Manage Secondary Palette",
+                  value: this.properties.collectionData1,
+                  fields: [
+                    {
+                      id: "Title",
+                      title: "Title",
+                      type: CustomCollectionFieldType.string,
+                      required: true
+                    },
+                    {
+                      id: "background",
+                      title: "Background",
+                      type: CustomCollectionFieldType.color
+                    },
+                    {
+                      id: "text",
+                      title: "Text",
+                      type: CustomCollectionFieldType.color,
+                      required: true,
+
+                    },
+
+                  ],
+                  disabled: false
+                }),
+                PropertyFieldLabelWithCallout('fakeProp1', {
+                  calloutTrigger: CalloutTriggers.Hover,
+                  key: 'colours',
+                  calloutContent: 'Set the SharePoint / M365 top bar background with colour matched text and icons from the primary colour palette',
+                  calloutWidth: 200,
+                  text: 'Top bar colour'
+                }),
+                PropertyFieldSwatchColorPicker('background', {
+                  style:1,
+                  label: '',
                   selectedColor: this.properties.background,
+                  colors: swatcharray,
                   onPropertyChange: this.onPropertyPaneFieldChanged,
                   properties: this.properties,
-                  disabled: false,
-                  isHidden: false,
-                  alphaSliderHidden: false,
-                  style: PropertyFieldColorPickerStyle.Inline,
+
+                  showAsCircles:true,
                   iconName: 'Precipitation',
                   key: 'colorFieldId'
                 }),
-                PropertyFieldColorPicker('color', {
-                  label: 'Top bar text and icons colour',
-                  selectedColor: this.properties.color,
-                  onPropertyChange: this.onPropertyPaneFieldChanged,
-                  properties: this.properties,
-                  disabled: false,
-                  isHidden: false,
-                  alphaSliderHidden: false,
-                  style: PropertyFieldColorPickerStyle.Inline,
-                  iconName: 'Precipitation',
-                  key: 'colorFieldId'
-                }), PropertyFieldColorPicker('color3', {
-                  label: 'Menu bar background colour',
+                PropertyFieldLabelWithCallout('fakeProp1', {
+                  calloutTrigger: CalloutTriggers.Hover,
+                  key: 'colours',
+                  calloutContent: 'Set the SharePoint menu bar background with colour matched text and icons from the primary colour palette',
+                  calloutWidth: 200,
+                  text: 'Menu bar colour'
+                }),
+                PropertyFieldSwatchColorPicker('color3', {
+                  label: '',
                   selectedColor: this.properties.color3,
                   onPropertyChange: this.onPropertyPaneFieldChanged,
                   properties: this.properties,
                   disabled: false,
-                  isHidden: false,
-                  alphaSliderHidden: false,
-                  style: PropertyFieldColorPickerStyle.Inline,
+                  colors: swatcharray,
+                  showAsCircles:true,
+                  style: 1,
                   iconName: 'Precipitation',
                   key: 'colorFieldId'
                 }),
 
-                PropertyFieldColorPicker('color2', {
-                  label: 'Menu bar links colour',
-                  selectedColor: this.properties.color2,
+                PropertyFieldLabelWithCallout('fakeProp1', {
+                  calloutTrigger: CalloutTriggers.Hover,
+                  key: 'colours',
+                  calloutContent: 'Set the button colours with colour matched text and icons from the primary and secondary colour palettes',
+                  calloutWidth: 200,
+                  text: 'Button Colour'
+                }),
+                PropertyFieldSwatchColorPicker('buttonprimary', {
+                  label: '',
+                  selectedColor: this.properties.buttonprimary,
                   onPropertyChange: this.onPropertyPaneFieldChanged,
+                  colors: swatcharray1,
+                  style: 1,
                   properties: this.properties,
-                  disabled: false,
-                  isHidden: false,
-                  alphaSliderHidden: false,
-                  style: PropertyFieldColorPickerStyle.Inline,
+
+                  showAsCircles:true,
                   iconName: 'Precipitation',
                   key: 'colorFieldId'
+                }),
+                PropertyFieldLabelWithCallout('fakeProp1', {
+                  calloutTrigger: CalloutTriggers.Hover,
+                  key: 'colours',
+                  calloutContent: 'Set the button colours with colour matched text and icons from the primary and secondary colour palettes',
+                  calloutWidth: 200,
+                  text: 'Button hover Colour'
+                }),
+                PropertyFieldSwatchColorPicker('buttonprimaryhover', {
+                  label: '',
+                  selectedColor: this.properties.buttonprimaryhover,
+                  onPropertyChange: this.onPropertyPaneFieldChanged,
+                  colors: swatcharray1,
+                  style: 1,
+                  properties: this.properties,
+
+                  showAsCircles:true,
+                  iconName: 'Precipitation',
+                  key: 'colorFieldId'
+                }),
+                PropertyPaneCheckbox('buttonuppercase', {
+                  text: 'Make button text uppercase'
                 }),
               ]
               },]
@@ -1403,78 +2119,77 @@ protected onPropertyPaneConfigurationStart(): void {
 
         },
         {
-          header: {
-            description: 'Buttons and Headers'
 
-          },
 
           groups: [
             {
               groupName: "",
               groupFields: [
+                PropertyFieldLabelWithCallout('fakeProp1', {
+                  calloutTrigger: CalloutTriggers.Hover,
+                  key: 'colours',
+                  calloutContent: 'Set the colour and font sizes for the heading elements',
+                  calloutWidth: 200,
+                  text: 'Headings'
+                }),
+                PropertyFieldLabelWithCallout('fakeProp1', {
+                  calloutTrigger: CalloutTriggers.Hover,
+                  key: 'colours',
+                  calloutContent: 'Set the colour and font sizes for the H1 elements',
+                  calloutWidth: 200,
+                  text: 'Heading 1'
+                }),
 
-                PropertyPaneCheckbox('buttonuppercase', {
-                  text: 'Make button text uppercase'
-                }),
-                PropertyFieldColorPicker('buttonprimary', {
-                  label: 'Button Colour',
-                  selectedColor: this.properties.buttonprimary,
-                  onPropertyChange: this.onPropertyPaneFieldChanged,
-                  properties: this.properties,
-                  disabled: false,
-                  isHidden: false,
-                  alphaSliderHidden: false,
-                  style: PropertyFieldColorPickerStyle.Inline,
-                  iconName: 'Precipitation',
-                  key: 'colorFieldId'
-                }),
-                PropertyFieldColorPicker('fontcolor', {
-                  label: 'Button text and icon colour',
-                  selectedColor: this.properties.fontcolor,
-                  onPropertyChange: this.onPropertyPaneFieldChanged,
-                  properties: this.properties,
-                  disabled: false,
-                  isHidden: false,
-                  alphaSliderHidden: false,
-                  style: PropertyFieldColorPickerStyle.Inline,
-                  iconName: 'Precipitation',
-                  key: 'colorFieldId'
-                }),
-                PropertyPaneCheckbox('newsuppercase', {
-                  text: 'Make headings uppercase'
-                }),
-                PropertyFieldColorPicker('h1color', {
-                  label: 'Heading 1 Colour',
+                PropertyPaneDropdown('font2', {
+									label: "Font",
+									options: this.lists
+								}),
+
+                PropertyFieldSwatchColorPicker('h1color', {
+                  label: '',
                   selectedColor: this.properties.h1color,
                   onPropertyChange: this.onPropertyPaneFieldChanged,
+                  colors: swatcharray1,
+                  style: 1,
                   properties: this.properties,
-                  disabled: false,
-                  isHidden: false,
-                  alphaSliderHidden: false,
-                  style: PropertyFieldColorPickerStyle.Inline,
+
+                  showAsCircles:true,
                   iconName: 'Precipitation',
                   key: 'colorFieldId'
                 }),
                 PropertyPaneTextField('h1size', {
-                  label:"Heading 1 text size"
+                  label:"Text size"
                 }),
-                PropertyFieldColorPicker('h2color', {
-                  label: 'Heading 2 Colour (Webpart Titles)',
+                PropertyFieldLabelWithCallout('fakeProp1', {
+                  calloutTrigger: CalloutTriggers.Hover,
+                  key: 'colours',
+                  calloutContent: 'Set the colour and font sizes for the H1 elements',
+                  calloutWidth: 200,
+                  text: 'Heading 2'
+                }),
+                PropertyPaneDropdown('font3', {
+									label: "Font",
+									options: this.lists
+								}),
+                PropertyFieldSwatchColorPicker('h2color', {
+                  label: '',
                   selectedColor: this.properties.h2color,
                   onPropertyChange: this.onPropertyPaneFieldChanged,
+                  colors: swatcharray1,
+                  style: 1,
                   properties: this.properties,
-                  disabled: false,
-                  isHidden: false,
-                  alphaSliderHidden: false,
-                  style: PropertyFieldColorPickerStyle.Inline,
+
+                  showAsCircles:true,
                   iconName: 'Precipitation',
                   key: 'colorFieldId'
                 }),
                 PropertyPaneTextField('h2size', {
-                  label:"Heading 2 text size"
+                  label:"Text size"
                 }),
 
-
+                PropertyPaneCheckbox('newsuppercase', {
+                  text: 'Make headings uppercase'
+                }),
 
 
 
@@ -1535,17 +2250,6 @@ protected onPropertyPaneConfigurationStart(): void {
     };
   }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 function resolve(items: IPropertyPaneDropdownOption[]) {
   throw new Error('Function not implemented.');

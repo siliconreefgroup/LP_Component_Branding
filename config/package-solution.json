@@ -15,7 +15,7 @@
     "name": "branding-component-client-side-solution",
     "id": "da98550d-5f23-42eb-9eda-70a930074f89",
     "version": "1.0.0.0",
-    "includeClientSideAssets": false,
+    "includeClientSideAssets": true,
     "isDomainIsolated": false,
     "developer": {
       "name": "",

@@ -38,6 +38,7 @@
     "@rushstack/eslint-config": "2.5.1",
     "@types/applicationinsights-js": "^1.0.9",
     "@types/jquery": "^3.5.14",
+    "@types/react": "^18.0.21",
     "@types/uikit": "^3.14.0",
     "@types/webpack-env": "1.15.2",
     "ajv": "6.12.5",
