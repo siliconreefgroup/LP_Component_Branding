@@ -140,7 +140,8 @@ console.log(colormatch3)
       MainFont: this.properties.font,
       HeaderFont: this.properties.font2
         });
-var siteurl: any = this.context.pageContext.site.serverRelativeUrl;
+        var siteurl: any;
+        if(this.context.pageContext.legacyPageContext.siteServerRelativeUrl==="/") {siteurl=""} else{siteurl = this.context.pageContext.site.serverRelativeUrl};
    async function createfile(serverRelativeUrl: string) {
       try {
 
@@ -583,7 +584,11 @@ else {headerfont2=this.properties.font3;headerimport2 =`@import url('https://fon
 
     .uk-button-primary,.uk-button-secondary:hover, .ms-Button--primary, .ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"]{background:`+this.properties.buttonprimary+` ;border:1px solid `+this.properties.buttonprimary+`; }
 
-    .ms-Button--primary .ms-Button-label, .ms-Button--primary .ms-Button-icon, .ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"], .uk-button-primary{color:`+colormatch2+` !important;`+buppercase+`}
+     .ms-Button--primary .ms-Button-label, .ms-Button--primary .ms-Button-icon, .ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"], .uk-button-primary{color:`+colormatch2+` !important;`+buppercase+`}
+    .ms-Button-label:hover, .uk-label:hover{color:`+colormatch3+` !important}
+    .uk-label:hover{background:`+colormatch2+` !important;}
+    .uk-label a:hover{color:`+colormatch3+` !important}
+    .uk-label{background:`+colormatch3+` !important}
     .uk-button-secondary, .ms-Button--primary:hover, .uk-button-primary:hover,.ms-NewsSiteTitle.orgNews, div[class*="hubItemImagePlaceholderContainer"]{background:`+this.properties.buttonprimaryhover+` ;border:1px solid `+this.properties.buttonprimaryhover+`;color:`+colormatch3+` !important}
     h3, h4, h5, h6,  h4.title, h4, h2,p, .od-FieldRenderer-text,tspan,.noopener, .datetime, .location, .category, .ms-TextField-field,.ms-TextField,
     .ms-TextField--multiline div[data-automation-id*="metadataTitle"],.ms-DetailsHeader-cellName, .overlay-text-wrapper,
@@ -1347,8 +1352,8 @@ div[data-automation-id*="captionElement"]  {
   font-family: '`+font+`', sans-serif
 }
 div[data-automation-id*="overlay-text-wrapper"] {
-  background-color: `+colormatch1+` !important;
-  opacity:.8;
+  background-color: `+this.properties.background+` !important;
+  opacity:.8 !important;
   white-space: pre-wrap;
   word-break: break-word;
   z-index: 1;
@@ -1739,7 +1744,7 @@ div[data-automation-id*="BaseCollection-FreshData"]  > div{background:transparen
     max-width: 600px;
     width:600px;
 }
-p a{color:red !important}
+
 `+this.properties.CustomCSS+`
 
     </style> `;

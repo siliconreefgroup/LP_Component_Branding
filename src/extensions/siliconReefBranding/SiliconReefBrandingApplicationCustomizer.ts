@@ -70,7 +70,8 @@ export default class SiliconReefBrandingApplicationCustomizer
 
 
         });
-var siteurl: any = this.context.pageContext.site.serverRelativeUrl;
+var siteurl: any;
+if(this.context.pageContext.legacyPageContext.siteServerRelativeUrl==="/") {siteurl=""} else{siteurl = this.context.pageContext.site.serverRelativeUrl};
     async function getcssfile() {
 
       let currentconetent = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/mycss.txt`).getText()).toString();
