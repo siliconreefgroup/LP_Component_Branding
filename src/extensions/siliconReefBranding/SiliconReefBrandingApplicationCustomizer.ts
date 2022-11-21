@@ -4,7 +4,7 @@ import {
   BaseApplicationCustomizer, PlaceholderContent, PlaceholderName, PlaceholderProvider
 } from '@microsoft/sp-application-base';
 import * as $ from 'jquery';
-import pnp, { List, ListEnsureResult } from "sp-pnp-js";
+
 import { spfi, SPFI, SPFx, ISPFXContext } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/files";
@@ -15,9 +15,14 @@ import "@pnp/sp/hubsites/web";
 import { Webs, IWebs } from "@pnp/sp/webs";
 import { Lists, ILists } from "@pnp/sp/lists";
 
+import "@pnp/sp/webs";
 
+import { Web } from "@pnp/sp/webs";
+import { IHubSiteInfo } from  "@pnp/sp/hubsites";
+import "@pnp/sp/hubsites";
 import {AppInsights} from "applicationinsights-js";
 import * as strings from 'SiliconReefBrandingApplicationCustomizerStrings';
+import { ConsoleListener } from 'sp-pnp-js';
 
 const LOG_SOURCE: string = 'SiliconReefBrandingApplicationCustomizer';
 
@@ -40,6 +45,7 @@ export default class SiliconReefBrandingApplicationCustomizer
     const sp = spfi().using(SPFx(this.context));
     console.log("onInit: Entered");
 
+    console.log(sp.hubSites());
     console.log("Available placeholders: ",
       this.context.placeholderProvider.placeholderNames.join(", "));
 
@@ -71,12 +77,31 @@ export default class SiliconReefBrandingApplicationCustomizer
 
         });
 var siteurl: any;
+
 if(this.context.pageContext.legacyPageContext.siteServerRelativeUrl==="/") {siteurl=""} else{siteurl = this.context.pageContext.site.serverRelativeUrl};
     async function getcssfile() {
+      console.log(siteurl)
+      console.log(sp.web.hubSiteData().catch.length)
+      if(sp.web.hubSiteData().catch.length==1){
 
       let currentconetent = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/mycss.txt`).getText()).toString();
+
  $("#beacontopplaceholder").append("<style id='custombeaconbranding'>"+currentconetent+"</style>");
     }
+  else { sp.web.hubSiteData().then(async hubsite =>{
+
+    var web = Web( hubsite.url);
+    var hubby = "/"+hubsite.url.split("/")[3]+"/"+hubsite.url.split("/")[4];
+    const url = hubsite.url+"/SiteAssets/mycss.txt";
+    const file = web.getFileByUrl(url);
+    console.log(url)
+
+ const currentconetent =  $.get(url, function (data) {
+  console.log(data)
+
+ $("#beacontopplaceholder").append("<style id='custombeaconbranding'>"+data+"</style>"); })
+  })}
+  }
 
 getcssfile()
 return Promise.resolve();
