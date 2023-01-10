@@ -706,7 +706,7 @@ div.uk-overlay.uk-position-bottom.uk-light>p,
 div.uk-overlay.uk-position-bottom.uk-light>div,
 h4.title,
  h3, h4, h5, h6,  h4.title, h4,h4.title,
- h4,.uk-card-body>h3,.uk-text-center h3,div.uk-overlay.uk-position-bottom.uk-light>h3,
+ h4,.uk-card-body>h3,.uk-text-center h3,div.uk-overlay.uk-position-bottom.uk-light>h3,.root-40
    {
 	    font-family:`+font+` !Important; line-height:1.6em
    }
