@@ -16,7 +16,9 @@ import { Webs, IWebs } from "@pnp/sp/webs";
 import { Lists, ILists } from "@pnp/sp/lists";
 
 import "@pnp/sp/webs";
-
+import UIkit from 'uikit';
+require("uikit/dist/css/uikit.min.css");
+require("uikit/dist/js/uikit.min.js");
 import { Web } from "@pnp/sp/webs";
 import { IHubSiteInfo } from  "@pnp/sp/hubsites";
 import "@pnp/sp/hubsites";
@@ -41,7 +43,14 @@ export default class SiliconReefBrandingApplicationCustomizer
   extends BaseApplicationCustomizer<ISiliconReefBrandingApplicationCustomizerProperties> {
 
     @override
-  public onInit(): Promise<void> {
+  public onInit(): Promise<void> { UIkit;
+   this.render();
+   this.context.application.navigatedEvent.add(this, () => {
+    this.render();
+  });
+return Promise.resolve();
+  }
+  private render() {
     const sp = spfi().using(SPFx(this.context));
     console.log("onInit: Entered");
 
@@ -104,6 +113,8 @@ if(this.context.pageContext.legacyPageContext.siteServerRelativeUrl==="/") {site
   }
 
 getcssfile()
-return Promise.resolve();
+
+
   }
+
 }

@@ -15,9 +15,7 @@ import { CalloutTriggers } from '@pnp/spfx-property-controls/lib/Callout';
 import { PropertyFieldLabelWithCallout } from '@pnp/spfx-property-controls/lib/PropertyFieldLabelWithCallout';
 import { PropertyFieldButtonWithCallout } from '@pnp/spfx-property-controls/lib/PropertyFieldButtonWithCallout';
 import { IPropertyFieldSwatchColorOption, PropertyFieldSwatchColorPicker, PropertyFieldSwatchColorPickerStyle } from '@pnp/spfx-property-controls/lib/PropertyFieldSwatchColorPicker';
-import UIkit from 'uikit';
-require("uikit/dist/css/uikit.min.css");
-require("uikit/dist/js/uikit.min.js");
+
 import Icons from 'uikit/dist/js/uikit-icons';
 import * as moment from "moment";
 import {
@@ -595,6 +593,7 @@ else {headerfont2=this.properties.font3;headerimport2 =`@import url('https://fon
         color: #333 !important;
     }
   }
+  a, p, div,  blockquote{font-family:`+font+` !Important; }
   .ms-DocumentCardTile .ms-DocumentCard:not(.ms-DocumentCard--compact) .ms-DocumentCardTile-titleArea .ms-DocumentCardLocation, .ms-NewsSiteTitle.text_siteLink  {
     color:  `+colormatch1+` !important;
 }
@@ -710,7 +709,7 @@ h4.title,
    {
 	    font-family:`+font+` !Important; line-height:1.6em
    }
-   .o365sx-appBrandLink > span{font-family:`+font+` !Important; }
+   .o365sx-appBrandLink > span, .root-115, .root-40{font-family:`+font+` !Important; }
    div[data-automation-id*="TitleTextId"],
  .webpart-header,
  div[data-automation-id*="HeroTitle"],
@@ -1393,7 +1392,7 @@ footer > div {
 
 
 
-.ms-HubNav-link {
+.ms-HubNav-link, .root-115 {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -2943,6 +2942,7 @@ div.uk-overlay.uk-position-bottom.uk-light>div>a:after, div.uk-overlay.uk-positi
   transform-origin: bottom right;
   transition: transform 0.35s ease-out;
 }
+
 `+this.properties.CustomCSS+`
 
     </style> `;
