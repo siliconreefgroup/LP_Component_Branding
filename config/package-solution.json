@@ -3,33 +3,33 @@
   "solution": {
     "metadata": {
       "shortDescription": {
-        "default": "branding-component description"
+        "default": "Beacon Branding Component - Add custom colours and fonts to your sites - now with support for gradient backgrounds"
       },
       "longDescription": {
-        "default": "branding-component description"
+        "default": "Beacon Branding Component - Add custom colours and fonts to your sites - now with support for gradient backgrounds"
       },
       "screenshotPaths": [],
       "videoUrl": "",
       "categories": []
     },
-    "name": "branding-component-client-side-solution",
+    "name": "Beacon Branding Component",
     "id": "da98550d-5f23-42eb-9eda-70a930074f89",
-    "version": "1.0.0.0",
+    "version": "3.0.1.0",
     "includeClientSideAssets": true,
     "isDomainIsolated": false,
     "developer": {
-      "name": "",
-      "websiteUrl": "",
-      "privacyUrl": "",
-      "termsOfUseUrl": "",
-      "mpnId": ""
+      "name": "Silicon Reef Ltd",
+      "websiteUrl": "https://siliconreef.co.uk/products/beacon/",
+      "privacyUrl": "https://siliconreef.co.uk/privacy/",
+      "termsOfUseUrl": "https://siliconreef.co.uk/privacy/",
+      "mpnId": "4886715"
     },
     "features": [
       {
         "title": "Application Extension - Deployment of custom action.",
         "description": "Deploys a custom action with ClientSideComponentId association",
         "id": "e24be23d-48fb-4add-be7d-b5de4e79c655",
-        "version": "1.0.0.0",
+        "version": "3.0.1.0",
         "assets": {
           "elementManifests": [
             "elements.xml",

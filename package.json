@@ -24,9 +24,10 @@
     "@uifabric/utilities": "^7.5.0",
     "jquery": "^3.6.1",
     "sp-pnp-js": "^3.0.10",
-    "srinstallers": "^1.0.10",
+    "srinstallers": "^1.2.7",
     "tslib": "2.3.1",
-    "uikit": "^3.15.6"
+    "uikit": "^3.15.6",
+    "uninstall": "0.0.0"
   },
   "devDependencies": {
     "@microsoft/eslint-config-spfx": "1.15.2",

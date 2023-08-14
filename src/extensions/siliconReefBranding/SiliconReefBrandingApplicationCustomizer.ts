@@ -1,31 +1,35 @@
 import { override } from '@microsoft/decorators';
-import { Log } from '@microsoft/sp-core-library';
+
 import {
   BaseApplicationCustomizer, PlaceholderContent, PlaceholderName, PlaceholderProvider
 } from '@microsoft/sp-application-base';
 import * as $ from 'jquery';
 
-import { spfi, SPFI, SPFx, ISPFXContext } from "@pnp/sp";
+import { spfi, SPFx,  } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/files";
 import "@pnp/sp/folders";
-import { IHubSiteWebData } from  "@pnp/sp/hubsites";
+
 import "@pnp/sp/webs";
 import "@pnp/sp/hubsites/web";
-import { Webs, IWebs } from "@pnp/sp/webs";
-import { Lists, ILists } from "@pnp/sp/lists";
+
+
 
 import "@pnp/sp/webs";
-import UIkit from 'uikit';
-require("uikit/dist/css/uikit.min.css");
+
+require("./css/uikit.css");
 require("uikit/dist/js/uikit.min.js");
-import { Web } from "@pnp/sp/webs";
-import { IHubSiteInfo } from  "@pnp/sp/hubsites";
+
+
+
 import "@pnp/sp/hubsites";
 import {AppInsights} from "applicationinsights-js";
-import * as strings from 'SiliconReefBrandingApplicationCustomizerStrings';
-import { ConsoleListener } from 'sp-pnp-js';
 
+
+
+import "@pnp/sp/webs";
+
+import "@pnp/sp/clientside-pages/web";
 const LOG_SOURCE: string = 'SiliconReefBrandingApplicationCustomizer';
 
 /**
@@ -41,20 +45,39 @@ export interface ISiliconReefBrandingApplicationCustomizerProperties {
 /** A Custom Action which can be run during execution of a Client Side Application */
 export default class SiliconReefBrandingApplicationCustomizer
   extends BaseApplicationCustomizer<ISiliconReefBrandingApplicationCustomizerProperties> {
-
+    protected get isRenderAsync(): boolean {
+      return true;
+    }
     @override
-  public onInit(): Promise<void> { UIkit;
-   this.render();
-   this.context.application.navigatedEvent.add(this, () => {
+  public async onInit(): Promise<void> {
+
+   this.context.application.navigatedEvent.add(this, async () => {
+    let filterings: string ="" ;
+    const   siteurl = this.context.pageContext.site.absoluteUrl
+    $.get(siteurl+"/SiteAssets/combined.txt", function (data) {
+      filterings = data;
+      document.querySelectorAll('#beaconfilters').forEach(e => e.remove());
+
+      $("body").append("<div style='display:none' id='beaconfilters'>"+filterings+"</div>");
+    });
+    const sp = spfi().using(SPFx(this.context));
+    let thispage = await sp.web.loadClientsidePage(this.context.pageContext.site.serverRequestPath);
+    document.querySelectorAll('#pagestyles').forEach(e => e.remove());
+    $("body").append(`<div id="pagestyles"><div style="display:none" id="pagethumb">`+thispage.bannerImageUrl+`</div>
+    <div style="display:none" id="pagetitle">`+thispage.title+`</div>
+    <div style="display:none" id="pagedescription">`+thispage.description+`</div>
+    <div style="display:none" id="pagetopic">`+thispage.topicHeader+`</div></div>`)
+
     this.render();
   });
 return Promise.resolve();
   }
-  private render() {
-    const sp = spfi().using(SPFx(this.context));
-    console.log("onInit: Entered");
 
-    console.log(sp.hubSites());
+  private async render() {
+    const sp = spfi().using(SPFx(this.context));
+
+
+
     console.log("Available placeholders: ",
       this.context.placeholderProvider.placeholderNames.join(", "));
 
@@ -63,7 +86,11 @@ return Promise.resolve();
     if (topPlaceholder) {
       topPlaceholder.domElement.innerHTML = `<div id="beacontopplaceholder">
 
-      </div>`;
+
+
+      </div><div id="beaconcustomplaceholder"></div>
+
+      `;
     }
 
     // bottom placeholder..
@@ -86,33 +113,126 @@ return Promise.resolve();
 
         });
 var siteurl: any;
+console.log(this.context.pageContext.legacyPageContext)
 
-if(this.context.pageContext.legacyPageContext.siteServerRelativeUrl==="/") {siteurl=""} else{siteurl = this.context.pageContext.site.serverRelativeUrl};
-    async function getcssfile() {
-      console.log(siteurl)
-      console.log(sp.web.hubSiteData().catch.length)
-      if(sp.web.hubSiteData().catch.length==1){
+if(this.context.pageContext.legacyPageContext.hubSiteId==null){
+  siteurl = this.context.pageContext.site.absoluteUrl
+  $("#beacontopplaceholder").html("");
 
-      let currentconetent = (await sp.web.getFileByUrl(`${siteurl}/SiteAssets/mycss.txt`).getText()).toString();
+  let fonts: string ="" ;
+    $.get(siteurl+"/SiteAssets/fontcss.txt", function (data) {
+      fonts = data;
+      $("#beaconfonts").remove();
 
- $("#beacontopplaceholder").append("<style id='custombeaconbranding'>"+currentconetent+"</style>");
+$("#beacontopplaceholder").append("<style id='beaconfonts'>"+fonts+"</style>");
+    })
+
+
+    let colors: string ="" ;
+    $.get(siteurl+"/SiteAssets/colorcss.txt", function (data) {
+      colors = data;
+      document.querySelectorAll('#beaconcolors').forEach(e => e.remove());
+      $("#beacontopplaceholder").append("<style id='beaconcolors'>"+colors+"</style>");
+    });
+    let headings: string ="" ;
+    $.get(siteurl+"/SiteAssets/headingcss.txt", function (data) {
+      headings = data;
+      document.querySelectorAll('#beaconheadings').forEach(e => e.remove());
+      $("#beacontopplaceholder").append("<style id='beaconheadings'>"+headings+"</style>");
+    });
+    let buttons: string ="" ;
+    $.get(siteurl+"/SiteAssets/buttoncss.txt", function (data) {
+      buttons = data;
+      document.querySelectorAll('#beaconbuttons').forEach(e => e.remove());
+      $("#beacontopplaceholder").append("<style id='beaconbuttons'>"+buttons+"</style>");
+    });
+    let custom: string ="" ;
+    $.get(siteurl+"/SiteAssets/customcss.txt", function (data) {
+      custom = data;
+      document.querySelectorAll('#beaconcustom').forEach(e => e.remove());
+      $("#beaconcustomplaceholder").append(`<style id='beaconcustom'>`+custom+`    button[id^="swatchColorPicker"],  button[id^="swatchColorPicker"]:hover{
+        width:40px;height:40px;font-weight:600
+        }
+        button[id^="swatchColorPicker"][aria-selected="true"]{border:2px solid black;border-style:dashed;height 42px;width:42px;}
+        button[id^="swatchColorPicker"][aria-selected="true"] > span {height:34px !Important;width:34px !Important;}
+        button[id^="swatchColorPicker"]::after{content:"Aa";position:relative;bottom:30px;}</style>`);
+    });
+
+
+
+
+}
+else if(this.context.pageContext.legacyPageContext.hubSiteId!=null){
+
+        sp.web.hubSiteData().then(async hubsite =>{
+
+
+
+siteurl = hubsite.url
+
+
+$("#beacontopplaceholder").html("");
+
+      let fonts: string ="" ;
+        $.get(hubsite.url+"/SiteAssets/fontcss.txt", function (data) {
+          fonts = data;
+          $("#beaconfonts").remove();
+          $("#beaconfonts").remove();
+          $("#beaconfonts").remove();
+
+ $("#beacontopplaceholder").append("<style id='beaconfonts'>"+fonts+"</style>");
+        })
+
+        let colors: string ="" ;
+        $.get(hubsite.url+"/SiteAssets/colorcss.txt", function (data) {
+          colors = data;
+          $("#beaconcolors").remove();
+          $("#beaconcolors").remove();
+          $("#beaconcolors").remove();
+
+          $("#beacontopplaceholder").append("<style id='beaconcolors'>"+colors+"</style>");
+        })
+        let headings: string ="" ;
+        $.get(hubsite.url+"/SiteAssets/headingcss.txt", function (data) {
+          headings = data;
+          $("#beaconheadings").remove();
+          $("#beaconheadings").remove();
+          $("#beaconheadings").remove();
+
+          $("#beacontopplaceholder").append("<style id='beaconheadings'>"+headings+"</style>");
+        })
+        let buttons: string ="" ;
+        $.get(hubsite.url+"/SiteAssets/buttoncss.txt", function (data) {
+          buttons = data;
+          $("#beaconbuttons").remove();
+          $("#beaconbuttons").remove();
+          $("#beaconbuttons").remove();
+          $("#beacontopplaceholder").append("<style id='beaconbuttons'>"+buttons+"</style>");
+        })
+        let custom: string ="" ;
+        $.get(hubsite.url+"/SiteAssets/customcss.txt", function (data) {
+          custom = data;
+          $("#beaconcustom").remove();
+          $("#beaconcustom").remove();
+          $("#beaconcustom").remove();
+
+          $("#beaconcustomplaceholder").append("<style id='beaconcustom'>"+custom+"</style>");
+        })
+
+        $.get(this.context.pageContext.site.absoluteUrl+"/SiteAssets/mycss.txt", function (data) {
+          let full = data;
+          $("#beaconcolors").remove();
+          $("#beaconcolors").remove();
+          $("#beaconcolors").remove();
+          $("#beaconcustomplaceholder").append("<style id='beaconfull'>"+full+"</style>");
+        })
+
+
     }
-  else { sp.web.hubSiteData().then(async hubsite =>{
 
-    var web = Web( hubsite.url);
-    var hubby = "/"+hubsite.url.split("/")[3]+"/"+hubsite.url.split("/")[4];
-    const url = hubsite.url+"/SiteAssets/mycss.txt";
-    const file = web.getFileByUrl(url);
-    console.log(url)
 
- const currentconetent =  $.get(url, function (data) {
-  console.log(data)
+    )}
 
- $("#beacontopplaceholder").append("<style id='custombeaconbranding'>"+data+"</style>"); })
-  })}
-  }
-
-getcssfile()
 
 
   }
